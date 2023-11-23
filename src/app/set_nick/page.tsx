@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import Link from "next/link";
 
 import { SubTitle, Title } from "@/components"
 import { SetNickForm } from "@/components/SetNickForm/SetNickForm";
