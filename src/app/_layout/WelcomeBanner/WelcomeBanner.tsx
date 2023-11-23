@@ -30,7 +30,7 @@ export const WelcomeBanner = () => {
         <svg viewBox="0 0 2 2" className="mx-2 inline h-0.5 w-0.5 fill-current" aria-hidden="true">
           <circle cx={1} cy={1} r={1} />
         </svg>
-        If you here first time and want to know about kivach more, then next&nbsp;<span aria-hidden="true">&rarr;</span>
+        If you are first time here and want to learn more about Kivach, read the introductory article
       </a>
     </p>
     <div className="flex flex-1 justify-end">

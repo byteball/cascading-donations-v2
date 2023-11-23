@@ -15,10 +15,6 @@ export const metadata: Metadata = {
 export default () => (<div className="mt-12 relative">
 	<Title level={1}>List of donors</Title>
 
-	<SubTitle level={1} className="mt-6">
-		Lorem ipsum dolor sit amet consectetur adipisicing elit. Cum doloremque corrupti architecto similique molestias quasi amet iusto sed illo, necessitatibus tenetur, adipisci voluptatem! Similique, nihil eligendi voluptatibus dolor eos natus?
-	</SubTitle>
-
 	<p className="my-4">
 		If you want to show your nick instead of your address, please <Link href="set_nick" className="text-primary">set your nick</Link>.
 	</p>

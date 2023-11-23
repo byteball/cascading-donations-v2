@@ -21,10 +21,10 @@ export default async () => {
   const popularRepositories = await getPopularRepository();
 
   return <div className="mt-12">
-    <Title level={1}>Popular<br /> repositories</Title>
+    <Title level={1}>Popular repositories</Title>
 
     <SubTitle level={1} className="mt-6">
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Cum doloremque corrupti architecto similique molestias quasi amet iusto sed illo, necessitatibus tenetur, adipisci voluptatem! Similique, nihil eligendi voluptatibus dolor eos natus?
+      Github repositories most popular among Kivach donors.
     </SubTitle>
 
     <div className="grid md:grid-cols-2 grid-cols-1 mt-24 gap-10">

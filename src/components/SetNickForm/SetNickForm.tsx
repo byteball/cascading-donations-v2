@@ -64,7 +64,7 @@ export const SetNickForm = () => {
 
   return <div>
     {walletAddress ? <div className="mt-4">
-      <Input placeholder="Nick"
+      <Input placeholder="Nickname"
         value={nick}
         onChange={handleWalletAddress}
         className="max-w-[600px]"
