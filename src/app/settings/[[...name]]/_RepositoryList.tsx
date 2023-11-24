@@ -119,7 +119,7 @@ export const RepositoryList: FC<IRepositoryListProps> = ({ repo, owner }) => {
     if (currentAccount) {
       if (query) {
         githubRestClient.rest.search.repos({
-          q: `user:${currentAccount} ${query} in:name fork:true`,
+          q: `user:${currentAccount} ${query} fork:true`,
           per_page: 500,
           page: 1,
           sort: "updated",
