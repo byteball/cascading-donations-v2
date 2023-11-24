@@ -58,6 +58,7 @@ export const DonateModal: FC<IDonateModalProps> = ({ owner, repo }) => {
   const walletAddress = useSelector(selectWalletAddress);
 
   const btnRef = useRef<any>(null);
+  const inputRef = useRef<any>(null);
 
   const dispatch = useDispatch();
 
@@ -197,6 +198,7 @@ export const DonateModal: FC<IDonateModalProps> = ({ owner, repo }) => {
   const donationUsdAmount = token?.price ? token.price * Number(amount) : 0;
 
   return <Modal
+    initRef={inputRef}
     isOpen={isOpen}
     setIsOpen={setIsOpen}
     advice={network === "Obyte" ? <small>0.00001 GB will be added as a fee</small>
@@ -215,7 +217,7 @@ export const DonateModal: FC<IDonateModalProps> = ({ owner, repo }) => {
         {Object.entries(tokensByNetwork).map(([asset, meta]: [string, ITokenMeta]) => <Select.Option key={asset} value={asset} iconUrl={[`${appConfig.ICON_CDN_URL}/${meta.symbol}.svg`, `https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.17.2/svg/color/${meta.symbol.toLowerCase()}.svg`]}>{meta.symbol}</Select.Option>)}
       </Select>
 
-      <Input autoFocus onChange={handleAmount} onKeyDown={handleEnter} value={amount} placeholder="Example 10" label="Amount" suffix={token?.symbol} className="mt-4" />
+      <Input onChange={handleAmount} ref={inputRef} onKeyDown={handleEnter} value={amount} placeholder="Example 10" label="Amount" suffix={token?.symbol} className="mt-4" />
 
       {poolStatus === "exists" && <Checkbox
         label="Convert to GBYTE"

@@ -24,7 +24,7 @@ export const SetNickForm = () => {
   const [nick, setNick] = useState<string>("");
   const buttonRef = useRef(null);
 
-  const { data, isLoading } = useSWR<INicks>(walletAddress ? '/api/nicks/' + walletAddress : null,
+  const { data, isLoading } = useSWR<INicks>('/api/nicks',
     fetcher,
     {
       refreshInterval: 1000 * 60 * 20, // refresh every 60 minutes
@@ -62,6 +62,8 @@ export const SetNickForm = () => {
     <Spin size="large" />
   </div>
 
+  const isTaken = !!Object.values(data || {}).find((n) => n.toLowerCase() === nick.toLowerCase());
+
   return <div>
     {walletAddress ? <div className="mt-4">
       <Input placeholder="Nickname"
@@ -69,16 +71,16 @@ export const SetNickForm = () => {
         onChange={handleWalletAddress}
         className="max-w-[600px]"
         onKeyDown={handleEnter}
+        error={isTaken ? "This nickname is taken. Please try another one." : ""}
       />
 
-      <QRButton href={link} disabled={!nick || !!currentNick && currentNick === nick} className="mt-4" ref={buttonRef}>Set a nick</QRButton>
+    <QRButton href={link} disabled={isTaken || !nick || !!currentNick && currentNick === nick} className="mt-4" ref={buttonRef}>Set a nick</QRButton>
 
     </div> : <div className="mt-4">
       <Link href="/set_nick?walletModal=1" className="text-primary">Please add your wallet</Link>
     </div>}
 
     <div className="mt-8"><ArrowLeftIcon className="h-[1em] w-[1em] inline stroke-primary" /> <Link href="/donors" className="text-primary">Back to donor list</Link></div>
-
 
   </div>
 }

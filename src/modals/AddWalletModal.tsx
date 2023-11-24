@@ -32,6 +32,12 @@ export const AddWalletModal = () => {
     }
   }, [searchParams, modalTriggerRef.current])
 
+  useEffect(() => {
+    if (currentWalletAddress) {
+      setWalletAddress({ value: currentWalletAddress, valid: true });
+    }
+  }, [currentWalletAddress]);
+
   const handleWalletAddress = (ev: React.ChangeEvent<HTMLInputElement>) => {
     setWalletAddress({
       valid: obyte.utils.isValidAddress(ev.target.value),
@@ -61,8 +67,8 @@ export const AddWalletModal = () => {
   if (!wasPersisted) return <div className="h-[34px] rounded-xl w-[20%] animate-pulse bg-slate-100" />
 
   return <Modal
-    ref={modalTriggerRef}
     isOpen={isOpen}
+    initRef={inputRef}
     setIsOpen={setIsOpen}
     subtitle="You need it to set up your own repos and receive donations. This address will also show up as donor when you donate from networks other than Obyte (Ethereum, BSC, etc)."
     title={currentWalletAddress ? "Change wallet" : "Add wallet"}
