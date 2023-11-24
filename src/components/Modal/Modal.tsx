@@ -33,7 +33,7 @@ export const Modal: FC<IModal> = forwardRef<HTMLDivElement, IModal>(
       {cloneElement(trigger, { onClick: () => setIsOpen(true), ref })}
 
       <Transition.Root show={isOpen} as={Fragment}>
-        <Dialog as="div" initialFocus={initRef ? initRef : undefined} className="relative h-full z-10" onClose={() => setIsOpen(false)}>
+        <Dialog as="div" initialFocus={initRef ? initRef : undefined} className="relative min-h-full z-10" onClose={() => setIsOpen(false)}>
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -47,7 +47,7 @@ export const Modal: FC<IModal> = forwardRef<HTMLDivElement, IModal>(
           </Transition.Child>
 
           <div className="fixed min-h-full inset-0 z-10 w-screen overflow-y-auto">
-            <div className="flex items-center h-full justify-center p-4 box-border text-center sm:items-center sm:p-0">
+            <div className="flex items-center min-h-full justify-center p-4 box-border text-center sm:items-center sm:p-0">
               <Transition.Child
                 as={Fragment}
                 enter="ease-out duration-300"
@@ -58,7 +58,7 @@ export const Modal: FC<IModal> = forwardRef<HTMLDivElement, IModal>(
                 leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               >
                 <Dialog.Panel className={cn("relative transform text-left transition-all my-10 sm:my-8 sm:w-full sm:max-w-2xl", wrapClassName)}>
-                  <div className="absolute right-0 top-0 hidden pr-4 pt-4 sm:block">
+                  <div className="absolute right-0 top-0 pr-4 pt-4">
                     <button
                       type="button"
                       aria-selected="false"
