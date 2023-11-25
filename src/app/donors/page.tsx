@@ -15,9 +15,9 @@ export const metadata: Metadata = {
 export default () => (<div className="mt-12 relative">
 	<Title level={1}>List of donors</Title>
 
-	<p className="my-4">
+	<SubTitle level={1} className="mt-6">
 		If you want to show your nick instead of your address, please <Link href="set_nick" className="text-primary">set your nick</Link>.
-	</p>
+	</SubTitle>
 
 	<ListOfDonors />
 </div>)

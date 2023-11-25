@@ -121,10 +121,6 @@ export default () => {
 	if (!walletAddressIsPersisted || !githubAccountsArePersisted || walletAddress && githubAccounts.length && isLoading) return <div className="mt-12">
 		<Title level={1}>Add repository</Title>
 
-		<SubTitle level={1} className="mt-6">
-			Lorem ipsum dolor sit amet consectetur adipisicing elit. Cum doloremque corrupti architecto similique molestias quasi amet iusto sed illo, necessitatibus tenetur, adipisci voluptatem! Similique, nihil eligendi voluptatibus dolor eos natus?
-		</SubTitle>
-
 		<div className="mt-5 flex justify-center">
 			<Spin size="large" />
 		</div>
@@ -132,10 +128,6 @@ export default () => {
 
 	return <div className="mt-12">
 		<Title level={1}>Add repository</Title>
-
-		<SubTitle level={1} className="mt-6">
-			Lorem ipsum dolor sit amet consectetur adipisicing elit. Cum doloremque corrupti architecto similique molestias quasi amet iusto sed illo, necessitatibus tenetur, adipisci voluptatem! Similique, nihil eligendi voluptatibus dolor eos natus?
-		</SubTitle>
 
 		<nav className="mt-4 mb-8 select-none" aria-label="Progress">
 			<ol role="list" className="gap-4 flex flex-col md:flex-row">
