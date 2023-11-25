@@ -62,7 +62,7 @@ export const Modal: FC<IModal> = forwardRef<HTMLDivElement, IModal>(
                     <button
                       type="button"
                       aria-selected="false"
-                      className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                      className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-0 focus:ring-transparent"
                       onClick={() => setIsOpen(false)}
                     >
                       <span className="sr-only">Close</span>
