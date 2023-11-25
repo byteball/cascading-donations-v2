@@ -154,7 +154,7 @@ export const Header = () => {
                 </Link>
 
                 <Link href="/settings" onClick={() => setMobileMenuOpen(false)} className={cn("group -mx-3 flex items-center gap-x-6 rounded-lg p-3 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50", { "text-primary": pathname === "/settings" })}>
-                  My repo
+                  My repos
                 </Link>
               </div>
               <div className="space-y-2 py-6">
