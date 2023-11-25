@@ -183,7 +183,7 @@ export const Footer = () => {
 					))}
 				</div>
 				<p className="mt-8 text-xs leading-5 text-gray-500 md:order-1 md:mt-0">
-					&copy; {(new Date).getFullYear()} Obyte. All rights reserved. All information about repositories belongs to their owners.
+					&copy; {(new Date).getFullYear()} <a target="_blank" rel="noopener" href="https://obyte.org">Obyte</a>. All rights reserved. All information about repositories belongs to their owners.
 				</p>
 			</div>
 		</div>
