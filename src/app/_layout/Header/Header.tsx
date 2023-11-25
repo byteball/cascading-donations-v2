@@ -73,7 +73,7 @@ export const Header = () => {
         </Link>
 
         <Popover ref={popoverRef} className="relative">
-          <Popover.Button onClick={() => setShow((s) => !s)} className="flex items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900">
+          <Popover.Button onClick={() => setShow((s) => !s)} className="flex items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900  focus:outline-none focus:ring-0 focus:ring-transparent">
             More
             <ChevronDownIcon className="h-5 w-5 flex-none text-gray-400" aria-hidden="true" />
           </Popover.Button>
