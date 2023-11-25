@@ -82,7 +82,7 @@ export default async function Page({ params }: RepoPageProps) {
         <div className='mt-8'>
 
           <SubTitle level={2} className="mb-8">
-            Kivach works on the <a className='text-primary' href="https://obyte.org" target="_blank" rel="noopener">Obyte network</a>, and therefore you can track any payment and see all the activity on the project.
+            Kivach works on the <a className='text-primary' href="https://obyte.org" target="_blank" rel="noopener">Obyte network</a>, and therefore you can track all donations.
           </SubTitle>
 
 

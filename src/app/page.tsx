@@ -74,7 +74,7 @@ export default async function Home({ searchParams }: { searchParams: { recentPag
           <Title level={2} className="mt-24">Recent events</Title>
           <div className="mt-10">
             <SubTitle level={2} className="mb-8">
-              Kivach works on the <a className='text-primary' href="https://obyte.org" target="_blank" rel="noopener">Obyte network</a>, and therefore you can track any payment and see all the activity on the project.
+              Kivach works on the <a className='text-primary' href="https://obyte.org" target="_blank" rel="noopener">Obyte network</a>, and therefore you can track all donations.
             </SubTitle>
 
             <TotalRecentEvents page={recentEventsPage} />
