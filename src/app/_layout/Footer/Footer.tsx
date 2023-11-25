@@ -7,6 +7,7 @@ import { Button, Input } from "@/components";
 
 import { sendNotification } from "@/store/thunks/sendNotification";
 import { useDispatch } from "@/store";
+import appConfig from "@/appConfig";
 
 const navigation = {
 	social: [
@@ -172,6 +173,9 @@ export const Footer = () => {
 						<Button ref={btnRef} onClick={subscribe} loading={subscribeLoading} disabled={!email.value || !email.valid}>Subscribe</Button>
 					</div>
 				</div>
+			</div>
+			<div className="mt-16 border-t border-gray-900/10 pt-8 sm:mt-20 lg:mt-16 text-gray-600 leading-6 text-sm">
+				If you are first time here and want to learn more about Kivach, read the <a target="_blank" rel="noopener" href={appConfig.INTRODUCTORY_ARTICLE_URL} className="text-primary">introductory article</a>.
 			</div>
 			<div className="mt-8 border-t border-gray-900/10 pt-8 md:flex md:items-center md:justify-between">
 				<div className="flex space-x-2 md:space-x-6 md:order-2">
