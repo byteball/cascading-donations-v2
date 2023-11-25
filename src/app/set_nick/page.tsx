@@ -17,7 +17,7 @@ export default () => {
     <Title level={1}>Set nickname</Title>
 
     <SubTitle level={1} className="mt-6">
-      If you want your donations show up under your nickname instead of address on the <Link href="/donors" className="text-primary">donors list</Link>, set your nickname here.
+      If you want your donations to show up under your nickname instead of address on the <Link href="/donors" className="text-primary">donors list</Link>, set your nickname here.
     </SubTitle>
 
     <SetNickForm />
