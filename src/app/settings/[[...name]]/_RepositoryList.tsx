@@ -28,6 +28,7 @@ interface IRepositoriesState {
   data: IRepositoryData[];
   loading: boolean;
   loaded: boolean;
+  currentAccount?: string;
 }
 
 
@@ -53,7 +54,7 @@ export const RepositoryList: FC<IRepositoryListProps> = ({ repo, owner }) => {
   const { data: githubSession } = useSession();
 
   const [currentAccount, setCurrentAccount] = useState<string | null>();
-  const [repositories, setRepositories] = useState<IRepositoriesState>({ data: [], loading: false, loaded: false });
+  const [repositories, setRepositories] = useState<IRepositoriesState>({ data: [], loading: true, loaded: false });
   const { data, error, isLoading } = useSWR(currentAccount && walletAddress ? `/api/settings/${currentAccount}` : null,
     fetcher,
     {
@@ -111,42 +112,32 @@ export const RepositoryList: FC<IRepositoryListProps> = ({ repo, owner }) => {
     }
   }, [githubAccounts]);
 
-  const update = () => {
-    setRepositories({ data: [], loading: true, loaded: false });
+  const update = async (page: number = 1) => {
+    if (!currentAccount) return null;
 
     const githubRestClient = new Octokit({ auth: githubSession?.access_token });
 
     if (currentAccount) {
-      if (query) {
-        githubRestClient.rest.search.repos({
-          q: `user:${currentAccount} ${query} fork:true`,
-          per_page: 500,
-          page: 1,
-          sort: "updated",
-        }).then((res) => {
-          const data = res.data.items.map(({ full_name, description, license, stargazers_count, fork, updated_at }) => ({ full_name, description, license, stargazers_count, fork, updated_at }))
-          setRepositories({ data, loading: false, loaded: true });
-        });
-      } else {
-        githubRestClient.rest.repos.listForUser({
-          username: currentAccount,
-          per_page: 500,
-          page: 1,
-          sort: "updated",
-        }).then((res) => {
-          const data = res.data.map(({ full_name, description, license, stargazers_count, fork, updated_at }) => ({ full_name, description, license, stargazers_count, fork, updated_at }))
-          setRepositories({ data, loading: false, loaded: true });
-        });
+      const data = await githubRestClient.rest.repos.listForUser({
+        username: currentAccount,
+        per_page: 100,
+        page,
+        sort: "updated",
+      }).then(async (res) => res.data.map(({ full_name, description, license, stargazers_count, fork, updated_at }) => ({ full_name, description, license, stargazers_count, fork, updated_at })));
+
+      setRepositories((d) => ({ ...d, data: [...d.data, ...data], loading: data.length >= 100, loaded: data.length < 100, currentAccount }));
+
+      if (data.length >= 100) {
+        await update(page + 1);
       }
     }
-
   }
 
   const queryDebounced = useDebounce(query, 800);
 
   useEffect(() => {
-    update();
-  }, [currentAccount, queryDebounced])
+    update(1);
+  }, [currentAccount])
 
   const statuses = {
     complete: 'text-green-700 bg-green-50 ring-green-600/20',
@@ -157,6 +148,8 @@ export const RepositoryList: FC<IRepositoryListProps> = ({ repo, owner }) => {
   if (!walletAddressIsPersisted || isLoading || !githubAccountsArePersisted) return <div className="flex justify-center mt-8">
     <Spin size="large" />
   </div>;
+
+  const sortedRepos = repositories.data.sort(sortFunc).filter(({ full_name }) => !queryDebounced || full_name.toLowerCase().includes(query.toLowerCase()));
 
   return <div className="mt-6">
     {!walletAddress ? <div>
@@ -203,7 +196,7 @@ export const RepositoryList: FC<IRepositoryListProps> = ({ repo, owner }) => {
           {repositories.loading ? <div className="flex justify-center">
             <Spin size="large" />
           </div> : <div>
-            {repositories.data.length > 0 ? repositories.data.sort(sortFunc).slice(0, countOnPage * page).map(({ full_name, updated_at, stargazers_count, description }) => <div key={full_name} className="divide-y divide-gray-100">
+            {sortedRepos.length > 0 ? sortedRepos.slice(0, countOnPage * page).map(({ full_name, updated_at, stargazers_count, description }) => <div key={full_name} className="divide-y divide-gray-100">
               <li className="flex md:items-center justify-between gap-x-6 py-5 flex-col md:flex-row ">
                 <div className="min-w-0 w-auto md:w-[600px]">
                   <div className="flex items-start gap-x-3 gap-y-1 flex-wrap md:flex-nowrap ">
@@ -258,7 +251,6 @@ export const RepositoryList: FC<IRepositoryListProps> = ({ repo, owner }) => {
 
                 </div>
                 <div className="flex flex-none items-center gap-x-4 mt-4 md:mt-0">
-                  {/* {!!(repo && owner) && full_name.toLowerCase() === `${owner}/${repo}` ? 'YES': 'NO' + } */}
                   <ManageModal
                     open={!!(repo && owner) && full_name.toLowerCase() === `${owner}/${repo}`}
                     notificationsAA={notificationAas[String(full_name).toLowerCase()] || null}
@@ -273,10 +265,7 @@ export const RepositoryList: FC<IRepositoryListProps> = ({ repo, owner }) => {
               <p className="text-center text-gray-500">No repositories found</p>
             </div>}
 
-            {repositories.data.length >= countOnPage * page ? <div className="flex justify-center gap-4">
-              {/* {page > 1 ? <Button type="light" onClick={() => setPage(p => p - 1)}>
-              Previous
-            </Button> : null} */}
+            {sortedRepos.length >= countOnPage * page ? <div className="flex justify-center gap-4">
               <Button onClick={() => setPage(p => p + 1)}>
                 Load more
               </Button>
