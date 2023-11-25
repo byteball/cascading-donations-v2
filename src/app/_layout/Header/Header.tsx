@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useState } from 'react'
+import { Fragment, useRef, useState } from 'react'
 import { Dialog, Popover, Transition } from '@headlessui/react'
 import {
   Bars3Icon,
@@ -15,6 +15,7 @@ import { AddWalletModal } from '@/modals';
 
 import { selectWalletAddress } from '@/store/slices/settingsSlice';
 import { useSelector } from '@/store';
+import { useOnClickOutside } from 'usehooks-ts';
 
 const more = [
   { name: 'About Obyte', href: 'https://obyte.org/', description: 'Running since 2016, Obyte is a distributed ledger based on directed acyclic graph (DAG).' },
@@ -22,10 +23,16 @@ const more = [
 ]
 
 export const Header = () => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [show, setShow] = useState(false);
   const walletAddress = useSelector(selectWalletAddress);
   const isWalletPersisted = useSelector((state) => state.settings.walletIsPersisted)
   const pathname = usePathname();
+  const popoverRef = useRef<HTMLElement | null>(null);
+
+  useOnClickOutside(popoverRef, () => {
+    setShow(false);
+  });
 
   return <header className="bg-white z-50">
     <nav className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8" aria-label="Global">
@@ -49,29 +56,30 @@ export const Header = () => {
         </button>
       </div>
       <Popover.Group className="hidden lg:flex lg:gap-x-12">
-        <Link href="/add" className={cn("text-sm font-semibold leading-6 text-gray-900", {"text-primary": pathname === "/add"})}>
+        <Link href="/add" className={cn("text-sm font-semibold leading-6 text-gray-900", { "text-primary": pathname === "/add" })}>
           Add repo
         </Link>
-        
-        <Link href="/popular" className={cn("text-sm font-semibold leading-6 text-gray-900", {"text-primary": pathname === "/popular"})}>
+
+        <Link href="/popular" className={cn("text-sm font-semibold leading-6 text-gray-900", { "text-primary": pathname === "/popular" })}>
           Popular
         </Link>
 
-        <Link href="/donors" className={cn("text-sm font-semibold leading-6 text-gray-900", {"text-primary": pathname === "/donors"})}>
+        <Link href="/donors" className={cn("text-sm font-semibold leading-6 text-gray-900", { "text-primary": pathname === "/donors" })}>
           Donors
         </Link>
 
-        <Link href="/faq" className={cn("text-sm font-semibold leading-6 text-gray-900", {"text-primary": pathname === "/faq"})}>
+        <Link href="/faq" className={cn("text-sm font-semibold leading-6 text-gray-900", { "text-primary": pathname === "/faq" })}>
           F.A.Q.
         </Link>
 
-        <Popover className="relative">
-          <Popover.Button className="flex items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900">
+        <Popover ref={popoverRef} className="relative">
+          <Popover.Button onClick={() => setShow((s) => !s)} className="flex items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900">
             More
             <ChevronDownIcon className="h-5 w-5 flex-none text-gray-400" aria-hidden="true" />
           </Popover.Button>
 
           <Transition
+            show={show}
             as={Fragment}
             enter="transition ease-out duration-200"
             enterFrom="opacity-0 translate-y-1"
@@ -82,7 +90,7 @@ export const Header = () => {
           >
             <Popover.Panel className="absolute -left-8 top-full z-10 mt-3 w-96 rounded-3xl bg-white p-4 shadow-lg ring-1 ring-gray-900/5">
               {more.map((item) => (
-                <div key={item.name} className="relative rounded-lg p-4 hover:bg-gray-50">
+                <div key={item.name} onClick={() => setShow(false)} className="relative rounded-lg p-4 hover:bg-gray-50">
                   <a href={item.href} target="_blank" rel="noopener" className="block text-sm font-semibold leading-6 text-gray-900">
                     {item.name}
                     <span className="absolute inset-0" />
@@ -97,7 +105,7 @@ export const Header = () => {
       <div className="hidden lg:flex lg:flex-1 lg:justify-end space-x-3 items-center">
 
         <div>
-          <Link href="/settings" className={cn("text-sm font-semibold leading-6 text-gray-900", {"text-primary": pathname === "/settings"})}>
+          <Link href="/settings" className={cn("text-sm font-semibold leading-6 text-gray-900", { "text-primary": pathname === "/settings" })}>
             My repos
           </Link>
         </div>
@@ -129,23 +137,23 @@ export const Header = () => {
           <div className="mt-6 flow-root">
             <div className="-my-6 divide-y divide-gray-500/10">
               <div className="space-y-2 py-6">
-                <Link href="/add" onClick={() => setMobileMenuOpen(false)} className={cn("group -mx-3 flex items-center gap-x-6 rounded-lg p-3 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50", {"text-primary": pathname === "/add"})}>
+                <Link href="/add" onClick={() => setMobileMenuOpen(false)} className={cn("group -mx-3 flex items-center gap-x-6 rounded-lg p-3 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50", { "text-primary": pathname === "/add" })}>
                   Add repo
                 </Link>
 
-                <Link href="/popular" onClick={() => setMobileMenuOpen(false)} className={cn("group -mx-3 flex items-center gap-x-6 rounded-lg p-3 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50", {"text-primary": pathname === "/popular"})}>
+                <Link href="/popular" onClick={() => setMobileMenuOpen(false)} className={cn("group -mx-3 flex items-center gap-x-6 rounded-lg p-3 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50", { "text-primary": pathname === "/popular" })}>
                   Popular
                 </Link>
 
-                <Link href="/donors" onClick={() => setMobileMenuOpen(false)} className={cn("group -mx-3 flex items-center gap-x-6 rounded-lg p-3 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50", {"text-primary": pathname === "/donors"})}>
+                <Link href="/donors" onClick={() => setMobileMenuOpen(false)} className={cn("group -mx-3 flex items-center gap-x-6 rounded-lg p-3 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50", { "text-primary": pathname === "/donors" })}>
                   Donors
                 </Link>
 
-                <Link href="/faq" onClick={() => setMobileMenuOpen(false)} className={cn("group -mx-3 flex items-center gap-x-6 rounded-lg p-3 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50", {"text-primary": pathname === "/faq"})}>
+                <Link href="/faq" onClick={() => setMobileMenuOpen(false)} className={cn("group -mx-3 flex items-center gap-x-6 rounded-lg p-3 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50", { "text-primary": pathname === "/faq" })}>
                   F.A.Q.
                 </Link>
 
-                <Link href="/settings" onClick={() => setMobileMenuOpen(false)} className={cn("group -mx-3 flex items-center gap-x-6 rounded-lg p-3 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50", {"text-primary": pathname === "/settings"})}>
+                <Link href="/settings" onClick={() => setMobileMenuOpen(false)} className={cn("group -mx-3 flex items-center gap-x-6 rounded-lg p-3 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50", { "text-primary": pathname === "/settings" })}>
                   My repo
                 </Link>
               </div>
