@@ -32,7 +32,7 @@ export const responseToEvent = async (responses: IResponse[]) => {
         type = "set_rules"
         repository = responseVars.message.split(" ")?.[2];
         const newRules = responseVars.new_rules && JSON.parse(responseVars.new_rules);
-        message = <span>Rules for <Link className="font-medium text-gray-950" href={`/repo/${repository}`}>{repository}</Link> have been changed to {(newRules && Object.keys(newRules).length > 0) ? Object.entries(newRules).map(([fullName, percent]) => `${fullName} ${percent}%`).join("; ") : `${repository} 100%`};</span>
+        message = <span>Rules for <Link className="font-medium text-gray-950" href={`/repo/${repository}`}>{repository}</Link> have been changed to {(newRules && Object.keys(newRules).length > 0) ? Object.entries(newRules).map(([fullName, percent]) => `${fullName} ${percent}%`).join(" ") : `${repository} 100%`}</span>
       } else if (responseVars.message.includes("Successful donation to ")) {
         type = "donate"
         repository = responseVars.message.split(" ")?.[3];

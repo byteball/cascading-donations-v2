@@ -12,7 +12,7 @@ interface IRecentEventProps {
 export const RecentEvents: FC<IRecentEventProps> = ({ data, first = true }) => {
   return <div className="flow-root">
     {data && data.length ? <ul role="list" className={cn({ "-mb-8": first })}>
-      {data?.map(({ repository, time, message }, eventIdx) => (
+      {data?.map(({ repository, time, message, link }, eventIdx) => (
         <li key={time + repository + eventIdx}>
           <div className="relative pb-8">
             {(eventIdx !== data.length - 1) ? (
@@ -33,7 +33,7 @@ export const RecentEvents: FC<IRecentEventProps> = ({ data, first = true }) => {
                   </p>
                 </div>
                 <div className="whitespace-nowrap text-right text-sm text-gray-500">
-                  {time}
+                  <a href={link} target="_blank" rel="noopener">{time}</a>
                 </div>
               </div>
             </div>
