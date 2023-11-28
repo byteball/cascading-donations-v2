@@ -8,8 +8,10 @@ import { MainSearch } from "./_layout/MainSearch/MainSearch";
 
 import { isNumber } from "lodash";
 import { Metadata } from "next";
+import appConfig from "@/appConfig";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(appConfig.PUBLIC_URL!),
   title: 'Kivach - Cascading donations',
   description: 'Cascading donations to github repositories. Support open-source projects with donations in crypto, and they will automatically forward a part of your donation to other open-source projects that made them possible.',
   openGraph: {

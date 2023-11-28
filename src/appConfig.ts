@@ -1,4 +1,5 @@
 export default {
+  PUBLIC_URL: process.env.NEXT_PUBLIC_PUBLIC_URL || process.env.VERCEL_URL,
   ENVIRONMENT: process.env.NEXT_PUBLIC_ENVIRONMENT,
   GITHUB_APP_KEYS: process.env.GITHUB_APP_KEYS, // only backend
   GITHUB_APP_CLIENT_ID: process.env.GITHUB_APP_CLIENT_ID,
