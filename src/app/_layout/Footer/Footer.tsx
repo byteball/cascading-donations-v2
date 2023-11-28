@@ -137,7 +137,9 @@ export const Footer = () => {
 
 			dispatch(sendNotification({
 				type: "success",
-				title: "You are successfully subscribed"
+				title: "You are successfully subscribed",
+				description: "Please confirm your subscription by clicking on the link in the email we sent you.",
+				dismissAfter: 4000
 			}));
 
 		} catch (e: any) {
