@@ -4,6 +4,8 @@ import { FC, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { findBridge, findOswapPool, transferEVM2Obyte } from "counterstake-sdk";
 import { XCircleIcon } from "@heroicons/react/24/outline";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import { Button, Input, Modal, Select, Checkbox } from "@/components";
 import { QRButton } from "@/components/QRButton/QRButton";
@@ -61,6 +63,8 @@ export const DonateModal: FC<IDonateModalProps> = ({ owner, repo }) => {
   const inputRef = useRef<any>(null);
 
   const dispatch = useDispatch();
+
+  const pathname = usePathname();
 
   // calcs
   const fullName = `${owner}/${repo}`;
@@ -190,7 +194,7 @@ export const DonateModal: FC<IDonateModalProps> = ({ owner, repo }) => {
     setDonationProcessIsActive(false);
   }
 
-  const linkToDonate = token && network === "Obyte" ? generateLink({ amount: Math.ceil(Number(amount) * 10 ** token.decimals) + (token.asset === "base" ? 1e4 : 0), aa: appConfig.AA_ADDRESS!, asset: token?.asset, data: { donate: 1, repo: String(fullName).toLowerCase() }, from_address: walletAddress }) : "";
+  const linkToDonate = token && network === "Obyte" ? generateLink({ amount: Math.ceil(Number(amount) * 10 ** token.decimals) + (token.asset === "base" ? 1e4 : 0), aa: appConfig.AA_ADDRESS!, asset: token?.asset, data: { donate: 1, repo: String(fullName).toLowerCase() }, from_address: walletAddress  }) : "";
 
 
   if (!tokens || !tokensByNetwork) return <Button loading type="primary">Donate</Button>;
@@ -211,7 +215,7 @@ export const DonateModal: FC<IDonateModalProps> = ({ owner, repo }) => {
         {networks.map(network => <Select.Option key={network} value={network} iconUrl={`/${network}.svg`}>{network}</Select.Option>)}
       </Select>
 
-      {network !== "Obyte" && !walletAddress ? <div className="text-red-800 text-sm mt-[10px]">To have your donations tracked to you when you donate from other networks, please add your Obyte address.</div> : null}
+      {network !== "Obyte" && !walletAddress ? <div className="text-red-800 text-sm mt-[10px]">To have your donations tracked to you when you donate from other networks, please <Link href={`${pathname}?walletModal=1`} className="text-primary" onClick={()=> setIsOpen(false)}>add your Obyte address</Link>.</div> : null}
 
       <Select value={token?.asset} search={false} label="Token" className="mt-4" onChange={(asset: string) => setToken(({ asset, ...tokensByNetwork[asset] }))}>
         {Object.entries(tokensByNetwork).map(([asset, meta]: [string, ITokenMeta]) => <Select.Option key={asset} value={asset} iconUrl={[`${appConfig.ICON_CDN_URL}/${meta.symbol}.svg`, `https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.17.2/svg/color/${meta.symbol.toLowerCase()}.svg`]}>{meta.symbol}</Select.Option>)}
@@ -245,7 +249,7 @@ export const DonateModal: FC<IDonateModalProps> = ({ owner, repo }) => {
             ref={btnRef}
             type="primary"
             href={linkToDonate}
-            disabled={!token || !amount || !walletAddress}
+            disabled={!token || !amount}
           >
             Donate
           </QRButton>

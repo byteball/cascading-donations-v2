@@ -26,8 +26,8 @@ export const AddWalletModal = () => {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (searchParams.get('walletModal') && modalTriggerRef.current) {
-      modalTriggerRef.current?.click();
+    if (searchParams.get('walletModal')) {
+      setIsOpen(true);
       router.replace(window.location.pathname);
     }
   }, [searchParams, modalTriggerRef.current])
