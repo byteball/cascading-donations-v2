@@ -5,8 +5,6 @@ import * as EmailValidator from 'email-validator';
 
 import { Button, Input } from "@/components";
 
-import { sendNotification } from "@/store/thunks/sendNotification";
-import { useDispatch } from "@/store";
 import appConfig from "@/appConfig";
 
 const navigation = {
@@ -92,11 +90,13 @@ const navigation = {
 	],
 }
 
+type subscribeStatusType = "pending" | "success" | "loading" | "error";
+
 export const Footer = () => {
 	const [email, setEmail] = useState({ value: "", valid: false });
-	const [subscribeLoading, setSubscribeLoading] = useState(false);
+	const [subscribeStatus, setSubscribeStatus] = useState<subscribeStatusType>("pending");
+
 	const btnRef = useRef<HTMLElement>(null);
-	const dispatch = useDispatch();
 
 	const handleChangeEmail = (ev: any) => {
 		const value = String(ev.target.value).trim();
@@ -112,7 +112,7 @@ export const Footer = () => {
 
 
 	const subscribe = async () => {
-		setSubscribeLoading(true);
+		setSubscribeStatus("loading");
 
 		try {
 			await fetch('/api/subscribe', {
@@ -133,23 +133,15 @@ export const Footer = () => {
 				return resData;
 			});
 
-			setEmail({ value: "", valid: false });
+			// setEmail({ value: "", valid: false });
 
-			dispatch(sendNotification({
-				type: "success",
-				title: "You are successfully subscribed",
-				description: "Please confirm your subscription by clicking on the link in the email we sent you.",
-				dismissAfter: 4000
-			}));
+			setSubscribeStatus("success");
 
 		} catch (e: any) {
-			dispatch(sendNotification({
-				type: "error",
-				title: e.message || "Unknown error"
-			}));
+
+			setSubscribeStatus("error");
 		}
 
-		setSubscribeLoading(false);
 	}
 
 	return <footer className="bg-white z-40" aria-labelledby="footer-heading">
@@ -157,27 +149,32 @@ export const Footer = () => {
 			Footer
 		</h2>
 		<div className="mx-auto max-w-7xl px-6 pb-8 pt-16 sm:pt-24 lg:px-8 lg:pt-32">
-			<div className="mt-16 border-t border-gray-900/10 pt-8 sm:mt-20 lg:mt-16 lg:flex lg:items-center lg:justify-between">
+			<div className="mt-16 sm:mt-20 lg:mt-16 mb-8">More information about Kivach in the <a target="_blank" rel="noopener" href={appConfig.INTRODUCTORY_ARTICLE_URL} className="text-primary">introductory article</a>.</div>
+			<div className="border-t border-gray-900/10 pt-8 lg:flex lg:items-center lg:justify-between">
 				<div>
 					<h3 className="text-sm font-semibold leading-6 text-gray-900">Subscribe to our newsletter</h3>
 					<p className="mt-2 text-sm leading-6 text-gray-600">
 						The latest news, articles, and resources, sent to your inbox.
 					</p>
 				</div>
-				<div className="mt-6 sm:flex sm:max-w-md lg:mt-0">
-					<label htmlFor="email-address" className="sr-only">
-						Email address
-					</label>
+				<div className="sm:max-w-md ">
+					<div className="mt-6 sm:flex lg:mt-0">
+						<label htmlFor="email-address" className="sr-only">
+							Email address
+						</label>
 
-					<Input onKeyDown={handleEnter} disabled={subscribeLoading} value={email.value} error={email.value && !email.valid ? "Email isn't valid!" : undefined} placeholder="Enter your email" onChange={handleChangeEmail} />
+						<Input onKeyDown={handleEnter} disabled={subscribeStatus === "loading" || subscribeStatus === "success"} value={email.value} error={email.value && !email.valid ? "Email isn't valid!" : undefined} placeholder="Enter your email" onChange={handleChangeEmail} />
 
-					<div className="mt-4 sm:ml-4 sm:mt-0 sm:flex-shrink-0">
-						<Button ref={btnRef} onClick={subscribe} loading={subscribeLoading} disabled={!email.value || !email.valid}>Subscribe</Button>
+						<div className="mt-4 sm:ml-4 sm:mt-0 sm:flex-shrink-0">
+							<Button ref={btnRef} onClick={subscribe} loading={subscribeStatus === "loading"} disabled={!email.value || !email.valid || subscribeStatus === "success"}>Subscribe</Button>
+						</div>
+					</div>
+
+					<div>
+						{subscribeStatus === "success" && <div className="mt-4 text-sm leading-5 text-green-500">You are successfully subscribed. Please confirm your subscription by clicking on the link in the email we sent you.</div>}
+						{subscribeStatus === "error" && <div className="mt-4 text-sm leading-5 text-red-500">Error occurred. Please try again later.</div>}
 					</div>
 				</div>
-			</div>
-			<div className="mt-16 border-t border-gray-900/10 pt-8 sm:mt-20 lg:mt-16 text-gray-600 leading-6 text-sm">
-				If you are first time here and want to learn more about Kivach, read the <a target="_blank" rel="noopener" href={appConfig.INTRODUCTORY_ARTICLE_URL} className="text-primary">introductory article</a>.
 			</div>
 			<div className="mt-8 border-t border-gray-900/10 pt-8 md:flex md:items-center md:justify-between">
 				<div className="flex space-x-2 md:space-x-6 md:order-2">
