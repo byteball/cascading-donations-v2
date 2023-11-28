@@ -215,7 +215,7 @@ export const DonateModal: FC<IDonateModalProps> = ({ owner, repo }) => {
         {networks.map(network => <Select.Option key={network} value={network} iconUrl={`/${network}.svg`}>{network}</Select.Option>)}
       </Select>
 
-      {network !== "Obyte" && !walletAddress ? <div className="text-red-800 text-sm mt-[10px]">To have your donations tracked to you when you donate from other networks, please <Link href={`${pathname}?walletModal=1`} className="text-primary" onClick={()=> setIsOpen(false)}>add your Obyte address</Link>.</div> : null}
+      {network !== "Obyte" && !walletAddress ? <div className="text-yellow-600 text-sm mt-[10px]">To have your donations tracked to you when you donate from other networks, please <Link href={`${pathname}?walletModal=1`} className="text-primary" onClick={()=> setIsOpen(false)}>add your Obyte address</Link>.</div> : null}
 
       <Select value={token?.asset} search={false} label="Token" className="mt-4" onChange={(asset: string) => setToken(({ asset, ...tokensByNetwork[asset] }))}>
         {Object.entries(tokensByNetwork).map(([asset, meta]: [string, ITokenMeta]) => <Select.Option key={asset} value={asset} iconUrl={[`${appConfig.ICON_CDN_URL}/${meta.symbol}.svg`, `https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.17.2/svg/color/${meta.symbol.toLowerCase()}.svg`]}>{meta.symbol}</Select.Option>)}
