@@ -171,8 +171,8 @@ export const Footer = () => {
 					</div>
 
 					<div>
-						{subscribeStatus === "success" && <div className="mt-4 text-sm leading-5 text-green-500">You are successfully subscribed. Please confirm your subscription by clicking on the link in the email we sent you.</div>}
-						{subscribeStatus === "error" && <div className="mt-4 text-sm leading-5 text-red-500">Error occurred. Please try again later.</div>}
+						{subscribeStatus === "success" && <div className="mt-4 text-sm leading-5 text-green-600">You are successfully subscribed. Please confirm your subscription by clicking on the link in the email we sent you.</div>}
+						{subscribeStatus === "error" && <div className="mt-4 text-sm leading-5 text-red-600">Error occurred. Please try again later.</div>}
 					</div>
 				</div>
 			</div>
