@@ -149,7 +149,6 @@ export const Footer = () => {
 			Footer
 		</h2>
 		<div className="mx-auto max-w-7xl px-6 pb-8 pt-16 sm:pt-24 lg:px-8 lg:pt-32">
-			<div className="mt-16 sm:mt-20 lg:mt-16 mb-8">More information about Kivach in the <a target="_blank" rel="noopener" href={appConfig.INTRODUCTORY_ARTICLE_URL} className="text-primary">introductory article</a>.</div>
 			<div className="border-t border-gray-900/10 pt-8 lg:flex lg:items-center lg:justify-between">
 				<div>
 					<h3 className="text-sm font-semibold leading-6 text-gray-900">Subscribe to our newsletter</h3>
@@ -185,9 +184,14 @@ export const Footer = () => {
 						</a>
 					))}
 				</div>
-				<p className="mt-8 text-xs leading-5 text-gray-500 md:order-1 md:mt-0">
-					&copy; {(new Date).getFullYear()} <a target="_blank" rel="noopener" href="https://obyte.org">Obyte</a>. All rights reserved. All information about repositories belongs to their owners.
-				</p>
+				<div className="md:order-1 flex flex-col">
+					<p className="text-xs md:mt-0 mt-2 mb-1 leading-5 text-gray-500 order-2 md:order-none">
+						&copy; {(new Date).getFullYear()} <a target="_blank" rel="noopener" href="https://obyte.org">Obyte</a>. All rights reserved. All information about repositories belongs to their owners.
+					</p>
+					<p className="text-xs mt-8 md:mt-0 leading-5 text-gray-500">
+						More information about Kivach in the <a target="_blank" rel="noopener" href={appConfig.INTRODUCTORY_ARTICLE_URL} className="text-primary">introductory article</a>.
+					</p>
+				</div>
 			</div>
 		</div>
 	</footer>
