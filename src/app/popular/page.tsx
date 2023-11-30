@@ -70,7 +70,7 @@ const PopularRepositoryFullCard: FC<IPopularRepositoryFullCardProps> = ({ owner,
         </div>
 
         <div className="mt-8 text-primary">
-          <Link href={`/repo/${owner}/${repo}`}>Donate now {"->"}</Link>
+          <Link href={`/repo/${owner}/${repo}`}>Donate to {owner}/{repo}</Link>
         </div>
       </div>
     </div>

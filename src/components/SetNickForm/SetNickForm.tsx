@@ -71,10 +71,14 @@ export const SetNickForm = () => {
         onChange={handleWalletAddress}
         className="max-w-[600px]"
         onKeyDown={handleEnter}
-        error={isTaken ? "This nickname is taken. Please try another one." : ""}
+        error={isTaken}
       />
 
-    <QRButton href={link} disabled={isTaken || !nick || !!currentNick && currentNick === nick} className="mt-4" ref={buttonRef}>Set a nick</QRButton>
+      {isTaken && <p className="text-red-600 text-sm mt-2">
+        This nickname is taken. Please try another one.
+      </p>}
+
+      <QRButton href={link} disabled={isTaken || !nick || !!currentNick && currentNick === nick} className="mt-4" ref={buttonRef}>Set a nick</QRButton>
 
     </div> : <div className="mt-4">
       <Link href="/set_nick?walletModal=1" className="text-primary">Please add your wallet</Link>
