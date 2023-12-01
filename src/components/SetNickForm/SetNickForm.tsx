@@ -47,7 +47,7 @@ export const SetNickForm = () => {
   }, [data, walletAddress])
 
   const handleWalletAddress = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    setNick(ev.target.value);
+    setNick(ev.target.value.trim());
   }
 
   const handleEnter = (ev: React.KeyboardEvent) => {
