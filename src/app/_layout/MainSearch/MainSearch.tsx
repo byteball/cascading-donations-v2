@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 
 import { Search } from "@/components"
+import { sendGAEvent } from "@/gtag";
 
 export const MainSearch = () => {
   const router = useRouter();
@@ -13,6 +14,13 @@ export const MainSearch = () => {
     size="large"
     type="primary"
     showSearchIcon
-    onChange={(fullName: string) => router.push("/repo/" + String(fullName).toLowerCase())}
+    onChange={(fullName: string) => {
+      router.push("/repo/" + String(fullName).toLowerCase());
+
+      sendGAEvent({
+        category: "Search",
+        action: `search ${fullName}`,
+      })
+    }}
   />
 }
