@@ -39,8 +39,8 @@ export function register() {
     throw new Error("NEXT_PUBLIC_ATTESTOR is not set");
   }
 
-  if (!process.env.NEXT_PUBLIC_PAIRING_URL) {
-    throw new Error("NEXT_PUBLIC_PAIRING_URL is not set");
+  if (!process.env.NEXT_PUBLIC_ATTESTOR_PAIRING_URL) {
+    throw new Error("NEXT_PUBLIC_ATTESTOR_PAIRING_URL is not set");
   }
 
   console.log("env was configured");

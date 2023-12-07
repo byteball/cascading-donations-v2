@@ -159,7 +159,7 @@ export const RepositoryList: FC<IRepositoryListProps> = ({ repo, owner }) => {
 
       {githubAccounts.length === 0 ? <div>
         <p className="mb-4">To link your wallet with your github account, you need to get an attestation.</p>
-        <p className="mb-4">Please <a className="text-primary" target="_blank" rel="noopener" href={appConfig.PAIRING_URL}>pair with the GitHub attestation bot</a> in your Obyte wallet and follow its instructions. The bot will ask you to authenticate with your github account and sign a message with your Obyte address. Choose <i>public</i> attestation when asked by the bot. Then, the bot will post an attestation transaction.</p>
+        <p className="mb-4">Please <a className="text-primary" target="_blank" rel="noopener" href={appConfig.ATTESTOR_PAIRING_URL}>pair with the GitHub attestation bot</a> in your Obyte wallet and follow its instructions. The bot will ask you to authenticate with your github account and sign a message with your Obyte address. Choose <i>public</i> attestation when asked by the bot. Then, the bot will post an attestation transaction.</p>
         <img src="/bot.jpg" alt="Attestation bot" style={{ maxWidth: 360 }} />
         <p className="mb-4">After successful attestation, you will automatically proceed to the next step.</p>
       </div> : <div className="w-full mt-8">
