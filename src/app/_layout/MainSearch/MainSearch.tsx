@@ -12,6 +12,7 @@ export const MainSearch = () => {
     className="md:w-[60%]"
     size="large"
     type="primary"
+    showSearchIcon
     onChange={(fullName: string) => router.push("/repo/" + String(fullName).toLowerCase())}
   />
 }
