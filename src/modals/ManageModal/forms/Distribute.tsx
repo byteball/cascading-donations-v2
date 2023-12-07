@@ -16,6 +16,7 @@ import { generateLink, getAvatarUrl, toLocalString } from "@/utils";
 import { IRules } from "@/utils/getRepoRules";
 
 import appConfig from "@/appConfig";
+import { sendGAEvent } from "@/gtag";
 interface IDistributeProps {
   rules: IRules | null;
   pools: IPools | null;
@@ -51,6 +52,14 @@ export const Distribute: FC<IDistributeProps> = ({ pools, rules, owner, repo }) 
   </div>
 
   const link = generateLink({ amount: 1e4, data: { asset, distribute: 1, repo: String(fullName).toLowerCase() }, aa: appConfig.AA_ADDRESS!, from_address: walletAddress });
+
+  const handleClick = () => {
+    sendGAEvent({
+      category: "Manage",
+      action: "Distribute",
+      label: fullName
+    })
+  }
 
   return <div>
     <Select search={false} value={asset} className="mt-4" onChange={(ev) => setAsset(ev)}>
@@ -92,7 +101,7 @@ export const Distribute: FC<IDistributeProps> = ({ pools, rules, owner, repo }) 
         </div>
       })}
 
-    <QRButton type="primary" className="mt-4" href={link}>Distribute</QRButton>
+    <QRButton type="primary" className="mt-4" href={link} onClick={handleClick}>Distribute</QRButton>
     </div> : null}
   </div>
 }

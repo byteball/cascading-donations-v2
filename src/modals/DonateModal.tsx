@@ -20,6 +20,7 @@ import client from "@/services/ws.client";
 import { generateLink, getAvatarUrl, getCountOfDecimals, toLocalString, truncate } from "@/utils";
 
 import appConfig from "@/appConfig";
+import { sendGAEvent } from "@/gtag";
 
 interface IDonationModalTitleProps {
   owner: string;
@@ -183,7 +184,7 @@ export const DonateModal: FC<IDonateModalProps> = ({ owner, repo }) => {
         });
 
         dispatch(sendNotification({ type: "success", "title": "Donation has been sent" }));
-
+        sendDonationEventToGA();
         // @ts-ignore
       } catch ({ message, reason }) {
         dispatch(sendNotification({ type: "error", "title": reason || message || "Unknown error" }));
@@ -200,6 +201,16 @@ export const DonateModal: FC<IDonateModalProps> = ({ owner, repo }) => {
   if (!tokens || !tokensByNetwork) return <Button loading type="primary">Donate</Button>;
 
   const donationUsdAmount = token?.price ? token.price * Number(amount) : 0;
+
+  const sendDonationEventToGA = () => {
+    if (token) {
+      sendGAEvent({
+        category: "Donate",
+        action: `${token.symbol}@${network}`,
+        label: fullName
+      })
+    }
+  };
 
   return <Modal
     initRef={inputRef}
@@ -249,6 +260,7 @@ export const DonateModal: FC<IDonateModalProps> = ({ owner, repo }) => {
             ref={btnRef}
             type="primary"
             href={linkToDonate}
+            onClick={sendDonationEventToGA}
             disabled={!token || !amount}
           >
             Donate

@@ -9,6 +9,7 @@ import { StoreProvider } from '@/store/StoreProvider';
 import { GithubSessionProvider } from './_layout/GithubSessionProvider/GithubSessionProvider';
 import { CookieBanner } from '@/components/CookieBanner/CookieBanner';
 import { WebVitals } from '@/components/WebVitals/WebVitals';
+import { GoogleAnalytics } from '@/components/GoogleAnalytics/GoogleAnalytics';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -29,13 +30,14 @@ export default function RootLayout({
         <WebVitals />
         <WelcomeBanner />
         <GithubSessionProvider>
-
           <StoreProvider>
             <CookieBanner />
             <Header />
 
             <div className="mx-auto flex max-w-7xl p-6 lg:px-8">
               <div className='w-full'>
+                <GoogleAnalytics />
+
                 {children}
               </div>
             </div>

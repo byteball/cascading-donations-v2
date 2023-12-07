@@ -12,6 +12,7 @@ import { GithubLogoIcon } from "@/components/Icons/GithubLogo";
 import { generateLink, getCountOfDecimals, getRandomString } from "@/utils";
 import appConfig from "@/appConfig";
 import { selectWalletAddress } from "@/store/slices/settingsSlice";
+import { sendGAEvent } from "@/gtag";
 
 interface IDistributionRulesProps {
   rules: IRules | null;
@@ -92,6 +93,14 @@ export const DistributionRules: FC<IDistributionRulesProps> = ({ owner, repo, ru
   const link = generateLink({ amount: 1e4, aa: appConfig.AA_ADDRESS!, data: { set_rules: 1, repo: String(fullName).toLowerCase(), rules: !isEmpty(formattedRules) ? formattedRules : false }, from_address: walletAddress });
   const validRules = !currentRules.find(r => r.percent <= 0 || r.percent > 100 || !r.repo);
 
+  const handleClick = () => {
+    sendGAEvent({
+      category: "Manage",
+      action: "Set rules",
+      label: fullName
+    })
+  }
+
   return <div>
     <div className="text-gray-700">
       <p className="mt-4">All the funds donated to your repo will be distributed between you and other repos you want to support.</p>
@@ -147,6 +156,6 @@ export const DistributionRules: FC<IDistributionRulesProps> = ({ owner, repo, ru
       The maximum cumulative percentage must not exceed 100
     </div>}
 
-    <QRButton ref={btnRef} className="mt-4" type="primary" href={link} disabled={percentSum > 100 || !validRules}>{addBtn ? "Add and save" : "Save"} rules</QRButton>
+    <QRButton ref={btnRef} className="mt-4" type="primary" href={link} disabled={percentSum > 100 || !validRules} onClick={handleClick}>{addBtn ? "Add and save" : "Save"} rules</QRButton>
   </div>
 }
