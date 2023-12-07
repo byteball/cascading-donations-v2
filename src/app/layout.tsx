@@ -8,6 +8,7 @@ import './globals.css';
 import { StoreProvider } from '@/store/StoreProvider';
 import { GithubSessionProvider } from './_layout/GithubSessionProvider/GithubSessionProvider';
 import { CookieBanner } from '@/components/CookieBanner/CookieBanner';
+import { WebVitals } from '@/components/WebVitals/WebVitals';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -25,6 +26,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+        <WebVitals />
         <WelcomeBanner />
         <GithubSessionProvider>
 
