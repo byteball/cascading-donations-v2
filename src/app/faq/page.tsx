@@ -4,7 +4,10 @@ import { Title } from '@/components';
 
 import { FaqList } from './_FaqList';
 
+import appConfig from '@/appConfig';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(appConfig.PUBLIC_URL!),
   title: 'Kivach - F.A.Q.',
   description: 'Cascading donations to github repositories. Support open-source projects with donations in crypto, and they will automatically forward a part of your donation to other open-source projects that made them possible.',
   openGraph: {

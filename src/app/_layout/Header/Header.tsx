@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useRef, useState } from 'react'
+import { Fragment, Suspense, useRef, useState } from 'react'
 import { Dialog, Popover, Transition } from '@headlessui/react'
 import {
   Bars3Icon,
@@ -110,7 +110,9 @@ export const Header = () => {
           </Link>
         </div>
 
-        <AddWalletModal />
+        <Suspense fallback={null}>
+          <AddWalletModal />
+        </Suspense>
       </div>
     </nav>
     <Dialog as="div" className="lg:hidden" open={mobileMenuOpen} onClose={setMobileMenuOpen}>
