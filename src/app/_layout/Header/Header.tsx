@@ -10,12 +10,16 @@ import { ChevronDownIcon } from '@heroicons/react/20/solid'
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import cn from 'classnames';
+import { useOnClickOutside } from 'usehooks-ts';
+import dynamic from 'next/dynamic';
 
-import { AddWalletModal } from '@/modals';
+
+const AddWalletModal = dynamic(() => import('@/modals/AddWalletModal').then((Component) => Component.AddWalletModal), {
+  ssr: false
+});
 
 import { selectWalletAddress } from '@/store/slices/settingsSlice';
 import { useSelector } from '@/store';
-import { useOnClickOutside } from 'usehooks-ts';
 
 const more = [
   { name: 'About Obyte', href: 'https://obyte.org/', description: 'Running since 2016, Obyte is a distributed ledger based on directed acyclic graph (DAG).' },
@@ -110,7 +114,7 @@ export const Header = () => {
           </Link>
         </div>
 
-        <Suspense fallback={null}>
+        <Suspense fallback={<div className="h-[34px] rounded-xl w-[20%] animate-pulse bg-slate-100" />}>
           <AddWalletModal />
         </Suspense>
       </div>
