@@ -55,7 +55,7 @@ export const RepositoryList: FC<IRepositoryListProps> = ({ repo, owner }) => {
 
   const [currentAccount, setCurrentAccount] = useState<string | null>();
   const [repositories, setRepositories] = useState<IRepositoriesState>({ data: [], loading: true, loaded: false });
-  const { data, error, isLoading } = useSWR(currentAccount && walletAddress ? `/api/settings/${currentAccount}` : null,
+  const { data, error, isLoading } = useSWR(currentAccount && walletAddress ? `/napi/settings/${currentAccount}` : null,
     fetcher,
     {
       refreshInterval: 1000 * 60 * 25, // refresh every 25 minutes

@@ -31,7 +31,7 @@ export const ListOfDonors = () => {
       fallbackData: []
     });
 
-  const { data: nicks, error: nicksError, isLoading: nicksIsLoading } = useSWR<INicks>('/api/nicks',
+  const { data: nicks, error: nicksError, isLoading: nicksIsLoading } = useSWR<INicks>('/napi/nicks',
     fetcher,
     {
       refreshInterval: 1000 * 60 * 60, // refresh every 60 minutes

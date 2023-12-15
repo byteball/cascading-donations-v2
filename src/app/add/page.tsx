@@ -48,7 +48,7 @@ export default () => {
 
 	const { data: githubSession } = useSession();
 
-	const { data, error, isLoading } = useSWR(currentAccount && walletAddress ? `/api/settings/${currentAccount}` : null,
+	const { data, error, isLoading } = useSWR(currentAccount && walletAddress ? `/napi/settings/${currentAccount}` : null,
 		fetcher,
 		{
 			refreshInterval: 1000 * 60 * 25, // refresh every 25 minutes

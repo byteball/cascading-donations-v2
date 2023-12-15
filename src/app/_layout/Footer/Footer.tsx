@@ -115,7 +115,7 @@ export const Footer = () => {
 		setSubscribeStatus("loading");
 
 		try {
-			await fetch('/api/subscribe', {
+			await fetch('/napi/subscribe', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'

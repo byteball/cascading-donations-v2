@@ -24,7 +24,7 @@ export const SetNickForm = () => {
   const [nick, setNick] = useState<string>("");
   const buttonRef = useRef(null);
 
-  const { data, isLoading } = useSWR<INicks>('/api/nicks',
+  const { data, isLoading } = useSWR<INicks>('/napi/nicks',
     fetcher,
     {
       refreshInterval: 1000 * 60 * 20, // refresh every 60 minutes

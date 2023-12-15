@@ -16,7 +16,7 @@ export const WebVitals = () => {
         break;
       }
       case 'TTFB': {
-        fetch('/api/web-vitals', {
+        fetch('/napi/web-vitals', {
           method: 'POST',
           body: JSON.stringify({
             value: metric.value,
