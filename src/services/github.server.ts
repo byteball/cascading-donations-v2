@@ -134,7 +134,6 @@ export const checkBannerExists = async (fullNameProp: string): Promise<boolean> 
         return exists;
       }
     } catch (e) {
-      console.error('error', e)
       bannersCache.set(fullName, { ts: Date.now(), exists: false });
       return false;
     }

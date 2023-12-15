@@ -8,16 +8,28 @@ export const WebVitals = () => {
   useReportWebVitals((metric) => {
     switch (metric.name) {
       case 'FCP': {
-        console.log('FCP', metric)
+        console.log('FCP', metric, window.location.pathname)
+        break;
       }
       case 'LCP': {
-        console.log('LCP', metric)
+        console.log('LCP', metric, window.location.pathname)
+        break;
       }
       case 'TTFB': {
-        console.log('TTFB', metric)
+        fetch('/api/web-vitals', {
+          method: 'POST',
+          body: JSON.stringify({
+            value: metric.value,
+            pathname: window.location.pathname,
+            id: window.gaGlobal?.vid
+          })
+        });
+
+        break;
       }
-      case 'FID' : {
-        console.log('FID', metric)
+      case 'FID': {
+        console.log('FID', metric, window.location.pathname)
+        break;
       }
     }
   });
