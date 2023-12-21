@@ -3,7 +3,7 @@ import path from "path";
 
 export async function POST(request: Request) {
   const req = await request.json();
-  const logPath = path.join(__dirname, "../../../../../logs.txt");
+  const logPath = path.join(__dirname, "../../../../../log.txt");
 
   try {
     await writeFile(logPath,`${req.pathname} ${req.value} ${request.headers.get("User-Agent") || ""}\n`, { flag: "a" });
