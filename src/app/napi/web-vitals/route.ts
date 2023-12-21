@@ -6,7 +6,7 @@ export async function POST(request: Request) {
   const logPath = path.join(__dirname, "../../../../../logs.txt");
 
   try {
-    await writeFile(logPath,`${req.pathname} ${req.value} ${req.id || ""}\n`, { flag: "a" }); //
+    await writeFile(logPath,`${req.pathname} ${req.value} ${request.headers.get("User-Agent") || ""}\n`, { flag: "a" });
   } catch (e) {
     console.error(e);
   }
