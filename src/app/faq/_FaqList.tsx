@@ -52,7 +52,7 @@ export const FaqList = () => {
           <>
             <dt>
               <Disclosure.Button className="flex w-full items-start justify-between text-left text-gray-900">
-                <span className="text-base font-semibold leading-7 max-w-3xl">{faq.question}</span>
+                <h2 className="text-base font-semibold leading-7 max-w-3xl">{faq.question}</h2>
                 <span className="ml-6 flex h-7 items-center">
                   {open ? (
                     <MinusSmallIcon className="h-6 w-6" aria-hidden="true" />
