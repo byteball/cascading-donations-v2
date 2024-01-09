@@ -1,8 +1,6 @@
-"use client";
+"use server";
 
 import Link from 'next/link';
-import { Disclosure } from '@headlessui/react';
-import { MinusSmallIcon, PlusSmallIcon } from '@heroicons/react/24/outline';
 
 const faqs = [
   {
@@ -44,30 +42,17 @@ const faqs = [
   }
 ];
 
-export const FaqList = () => {
-  return <dl className="mt-10 space-y-6 divide-y divide-gray-900/10">
-    {faqs.map((faq) => (
-      <Disclosure as="div" key={faq.question} className="pt-6">
-        {({ open }) => (
-          <>
-            <dt>
-              <Disclosure.Button className="flex w-full items-start justify-between text-left text-gray-900">
-                <h2 className="text-base font-semibold leading-7 max-w-3xl">{faq.question}</h2>
-                <span className="ml-6 flex h-7 items-center">
-                  {open ? (
-                    <MinusSmallIcon className="h-6 w-6" aria-hidden="true" />
-                  ) : (
-                    <PlusSmallIcon className="h-6 w-6" aria-hidden="true" />
-                  )}
-                </span>
-              </Disclosure.Button>
-            </dt>
-            <Disclosure.Panel as="dd" className="mt-2 pr-12 max-w-4xl">
-              <p className="text-base leading-7 text-gray-600">{faq.answer}</p>
-            </Disclosure.Panel>
-          </>
-        )}
-      </Disclosure>
-    ))}
-  </dl>
-}
+export const FaqList = () => (<div className="mt-10 space-y-6 divide-y divide-gray-900/10">
+  {faqs.map((faq) => (
+    <div key={faq.question} className="pt-6">
+      <div>
+        <div className="flex w-full items-start justify-between text-left text-gray-900">
+          <h2 className="text-lg font-semibold leading-7 max-w-3xl">{faq.question}</h2>
+        </div>
+      </div>
+      <div className="mt-2 pr-12 max-w-4xl">
+        <div className="text-base leading-7 text-gray-600">{faq.answer}</div>
+      </div>
+    </div>
+  ))}
+</div>);
