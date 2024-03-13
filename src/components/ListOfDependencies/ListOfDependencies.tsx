@@ -29,7 +29,7 @@ export const ListOfDependencies: FC<IDependencies> = async ({ owner, repo }) => 
         {filteredDependencies.map(({ name, repo, key }) => {
           const owner = repo!.split("/")[0];
 
-          return (<div key={key} className="flex relative z-50 items-center space-x-3 rounded-lg">
+          return (<div key={key} className="flex relative z-20 items-center space-x-3 rounded-lg">
             <div className="flex-shrink-0">
               <img className="h-14 w-14 rounded-full" src={`https://avatars.githubusercontent.com/${owner}`} alt={`${owner}'s account`} />
             </div>

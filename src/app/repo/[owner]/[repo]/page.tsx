@@ -67,6 +67,11 @@ export default async function Page({ params }: RepoPageProps) {
         />
       </div>
 
+      <ListOfDependencies
+        owner={owner}
+        repo={repo}
+      />
+      
       <div className='mt-12'>
         <Title level={2}>Top contributors</Title>
 
@@ -75,11 +80,6 @@ export default async function Page({ params }: RepoPageProps) {
           repo={repo}
         />
       </div>
-
-      <ListOfDependencies
-        owner={owner}
-        repo={repo}
-      />
 
       <div className='mt-12'>
         <Title level={2}>Recent events</Title>
