@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { Metadata } from 'next';
 
-import { RecentEvents, SubTitle, Title } from "@/components"
+import { ListOfDependencies, RecentEvents, SubTitle, Title } from "@/components"
 
 import { Meta } from '../../_layout/Meta';
 import { Contributions } from '../../_layout/Contributors';
@@ -75,6 +75,11 @@ export default async function Page({ params }: RepoPageProps) {
           repo={repo}
         />
       </div>
+
+      <ListOfDependencies
+        owner={owner}
+        repo={repo}
+      />
 
       <div className='mt-12'>
         <Title level={2}>Recent events</Title>

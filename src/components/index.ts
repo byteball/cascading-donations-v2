@@ -8,3 +8,4 @@ export { default as Select } from "./Select/Select";
 export { default as Tbas } from "./Tabs/Tabs";
 export { Checkbox } from "./Checkbox/Checkbox";
 export { Search } from "./Search/Search";
+export { ListOfDependencies } from "./ListOfDependencies/ListOfDependencies";
