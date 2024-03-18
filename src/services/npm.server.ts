@@ -5,13 +5,17 @@ interface packageDependencies {
   description?: string;
 }
 
+const CACHE_REVALIDATE_TS = 60 * 60 * 24 * 7; // 1 week
+
 export const getPackageDependencies = async (fullName: string) => {
   const result: packageDependencies[] = [];
   const getters: Promise<void>[] = [];
 
   try {
     if (fullName) {
-      const packageData = await fetch(`https://cdn.jsdelivr.net/gh/${fullName}@latest/package.json`);
+      const packageData = await fetch(`https://cdn.jsdelivr.net/gh/${fullName}@latest/package.json`, {
+        next: { revalidate: CACHE_REVALIDATE_TS },
+      });
       const packageDependencies: packageDependencies = await packageData.json().then((data) => ({ ...(data.dependencies || {}), ...(data.devDependencies || {}) })).catch(() => ({}));
 
       Object.entries(packageDependencies).slice(0, 50).forEach(([packageName, linkOrVersion]) => {
@@ -51,7 +55,7 @@ export const getPackageDependencies = async (fullName: string) => {
 }
 
 export const getListOfDependentsPackages = async (fullName: string) => {
-  const packageData = await fetch(`https://cdn.jsdelivr.net/gh/${fullName}@latest/package.json`);
+  const packageData = await fetch(`https://cdn.jsdelivr.net/gh/${fullName}@latest/package.json`, { next: { revalidate: CACHE_REVALIDATE_TS }, });
   const packageName = await packageData.json().then((data) => data.name).catch(() => null);
 
   if (!packageName) return [];
@@ -59,7 +63,8 @@ export const getListOfDependentsPackages = async (fullName: string) => {
   const dependentRepositoryData = await fetch(`https://www.npmjs.com/browse/depended/${packageName}`, {
     headers: {
       "X-Spiferack": "1"
-    }
+    },
+    next: { revalidate: CACHE_REVALIDATE_TS },
   });
 
   const dependentRepository = await dependentRepositoryData.json().then((data) => data?.packages?.map((data => ({ name: data.name, description: data.description || null })))).catch((e) => { console.error("error: ", e); return []; });
@@ -75,7 +80,9 @@ export const getListOfDependentsPackages = async (fullName: string) => {
 
 export const getRepoFullNameByPackageName = async (packageName: string) => {
   try {
-    const packageDataResponse = await fetch(`https://cdn.jsdelivr.net/npm/${packageName}/package.json`);
+    const packageDataResponse = await fetch(`https://cdn.jsdelivr.net/npm/${packageName}/package.json`, {
+      next: { revalidate: CACHE_REVALIDATE_TS },
+    });
     const packageData = await packageDataResponse.json();
 
     if (typeof packageData.repository === "string") {
@@ -129,7 +136,7 @@ export const getDescriptionFromGithubByFullName = async (fullName: string) => {
   });
 
   try {
-    const packageDataResponse = await fetch(`https://cdn.jsdelivr.net/gh/${fullName}@latest/package.json`);
+    const packageDataResponse = await fetch(`https://cdn.jsdelivr.net/gh/${fullName}@latest/package.json`, { next: { revalidate: CACHE_REVALIDATE_TS }, });
     const packageData = await packageDataResponse.json();
 
     return ({
