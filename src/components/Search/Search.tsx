@@ -78,7 +78,7 @@ export const Search: FC<ISearchProps> = ({ placeholder, className, size = "defau
         onKeyDown={onKeyDown}
         placeholder={placeholder}
         className={cn({"pl-8": showSearchIcon}, "w-full h-[40px] rounded-md border-0 bg-white py-2 px-4 text-gray-900 shadow-sm ring-1  ring-gray-300 focus:ring-2 sm:leading-6", size === "large" ? "py-3 text-md" : "text-sm ", { "ring-primary ring-2": type === "primary" }, {"ring-red-500": error })}
-        onChange={debounce((event) => setQuery(event.target.value), 800)}
+        onChange={debounce((event) => setQuery(event.target.value.replace("https://github.com/", "")), 800)}
       />
 
 

@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { Metadata } from 'next';
 
-import { RecentEvents, SubTitle, Title } from "@/components"
+import { ListOfDependencies, RecentEvents, SubTitle, Title } from "@/components"
 
 import { Meta } from '../../_layout/Meta';
 import { Contributions } from '../../_layout/Contributors';
@@ -11,6 +11,7 @@ import { Recipients } from '../../_layout/Recipients';
 import appConfig from '@/appConfig';
 import { getRepoRecentEvents } from '@/services/backend.server';
 import { Shares } from '../../_layout/Shares';
+import { ListOfDependents } from '@/components/ListOfDependents/ListOfDependents';
 
 type RepoPageProps = {
   params: { repo: string, owner: string }
@@ -60,14 +61,24 @@ export default async function Page({ params }: RepoPageProps) {
         />
       </div>
 
-      <div className='mt-12'>
+      <div className='mt-24'>
         <Recipients
           repo={repo}
           owner={owner}
         />
       </div>
 
-      <div className='mt-12'>
+      <ListOfDependencies
+        owner={owner}
+        repo={repo}
+      />
+      
+       <ListOfDependents
+        owner={owner}
+        repo={repo}
+      />
+      
+      <div className='mt-24'>
         <Title level={2}>Top contributors</Title>
 
         <Contributions
@@ -76,7 +87,7 @@ export default async function Page({ params }: RepoPageProps) {
         />
       </div>
 
-      <div className='mt-12'>
+      <div className='mt-24'>
         <Title level={2}>Recent events</Title>
 
         <div className='mt-8'>

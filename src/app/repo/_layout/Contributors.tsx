@@ -22,7 +22,7 @@ export const Contributions: FC<ContributionsProps> = async ({ owner, repo }) => 
 					</div>
 					<div>
 						{login !== "Unknown"
-							? <a href={`https://github.com/${login}`} target="_blank" rel="noopener" className='font-medium text-md md:text-xl'>{login}</a>
+							? <a href={`https://github.com/${login}`} target="_blank" rel="noopener nofollow" className='font-medium text-md md:text-xl'>{login}</a>
 							: <span className='font-medium text-md md:text-xl'>{login}</span>
 						}
 						<div className='text-sm md:text-md'><b>{contributions ?? 0}</b> contributions</div>
