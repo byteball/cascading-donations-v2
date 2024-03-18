@@ -2,7 +2,7 @@
 
 import { FC } from "react";
 
-import { getListOfDependentsPackages } from "@/services/npm.server";
+import { getListOfDependentPackages } from "@/services/npm.server";
 import { Title } from "..";
 import { DependencyItem } from "../DependencyItem/DependencyItem";
 
@@ -12,7 +12,7 @@ interface IListOfDependentsProps {
 }
 
 export const ListOfDependents: FC<IListOfDependentsProps> = async ({ owner, repo }) => {
-  const dependents = await getListOfDependentsPackages(`${owner}/${repo}`);
+  const dependents = await getListOfDependentPackages(`${owner}/${repo}`);
 
   const filteredDependents = dependents.filter(d => d?.name).map((d) => ({ ...d, key: d.name + (Math.random() + 1).toString(36).substring(2) }));
 

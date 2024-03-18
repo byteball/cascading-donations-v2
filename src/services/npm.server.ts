@@ -54,10 +54,10 @@ export const getPackageDependencies = async (fullName: string) => {
   return result;
 }
 
-export const getListOfDependentsPackages = async (fullName: string) => {
+export const getListOfDependentPackages = async (fullName: string) => {
   const packageData = await fetch(`https://cdn.jsdelivr.net/gh/${fullName}@latest/package.json`, { next: { revalidate: CACHE_REVALIDATE_TS }, });
   const packageName = await packageData.json().then((data) => data.name).catch(() => null);
-  console.error('packageName', packageName)
+
   if (!packageName) return [];
 
   const dependentRepositoryData = await fetch(`https://www.npmjs.com/browse/depended/${packageName}`, {
