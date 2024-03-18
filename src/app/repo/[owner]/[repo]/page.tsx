@@ -11,6 +11,7 @@ import { Recipients } from '../../_layout/Recipients';
 import appConfig from '@/appConfig';
 import { getRepoRecentEvents } from '@/services/backend.server';
 import { Shares } from '../../_layout/Shares';
+import { ListOfDependents } from '@/components/ListOfDependents/ListOfDependents';
 
 type RepoPageProps = {
   params: { repo: string, owner: string }
@@ -68,6 +69,11 @@ export default async function Page({ params }: RepoPageProps) {
       </div>
 
       <ListOfDependencies
+        owner={owner}
+        repo={repo}
+      />
+      
+       <ListOfDependents
         owner={owner}
         repo={repo}
       />

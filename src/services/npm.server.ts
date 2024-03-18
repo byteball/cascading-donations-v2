@@ -50,6 +50,29 @@ export const getPackageDependencies = async (fullName: string) => {
   return result;
 }
 
+export const getListOfDependentsPackages = async (fullName: string) => {
+  const packageData = await fetch(`https://cdn.jsdelivr.net/gh/${fullName}@latest/package.json`);
+  const packageName = await packageData.json().then((data) => data.name).catch(() => null);
+
+  if (!packageName) return [];
+
+  const dependentRepositoryData = await fetch(`https://www.npmjs.com/browse/depended/${packageName}`, {
+    headers: {
+      "X-Spiferack": "1"
+    }
+  });
+
+  const dependentRepository = await dependentRepositoryData.json().then((data) => data?.packages?.map((data => ({ name: data.name, description: data.description || null })))).catch((e) => { console.error("error: ", e); return []; });
+
+  if (!dependentRepository) return [];
+
+  const getters = dependentRepository.map((data: any) => getRepoFullNameByPackageName(data.name).catch(() => null));
+
+  const res = await Promise.all(getters);
+
+  return res;
+}
+
 export const getRepoFullNameByPackageName = async (packageName: string) => {
   try {
     const packageDataResponse = await fetch(`https://cdn.jsdelivr.net/npm/${packageName}/package.json`);
