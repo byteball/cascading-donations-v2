@@ -21,7 +21,7 @@ export const ListOfDependencies: FC<IDependencies> = async ({ owner, repo }) => 
 
   return (
     <>
-      <div className='mt-12'>
+      <div className='mt-24'>
         <Title level={2}>Support the dependencies of {owner}/{repo}</Title>
       </div>
 

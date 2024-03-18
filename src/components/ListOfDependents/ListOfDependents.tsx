@@ -20,8 +20,8 @@ export const ListOfDependents: FC<IListOfDependentsProps> = async ({ owner, repo
 
   return (
     <>
-      <div className='mt-12'>
-        <Title level={2}>Support the dependents repositories</Title>
+      <div className='mt-24'>
+        <Title level={2}>Support the repos that depend on {`${owner}/${repo}`}</Title>
       </div>
 
       <div className='max-w-5xl grid gap-8 md:grid-cols-2 xl:grid-cols-3 mt-8'>

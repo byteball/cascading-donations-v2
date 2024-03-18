@@ -5,7 +5,7 @@ interface packageDependencies {
   description?: string;
 }
 
-const CACHE_REVALIDATE_TS = 60 * 60 * 24 * 7; // 1 week
+const CACHE_REVALIDATE_TS = 60 * 60 * 24 * 7 * 4 * 3; // 3 months
 
 export const getPackageDependencies = async (fullName: string) => {
   const result: packageDependencies[] = [];
@@ -57,7 +57,7 @@ export const getPackageDependencies = async (fullName: string) => {
 export const getListOfDependentsPackages = async (fullName: string) => {
   const packageData = await fetch(`https://cdn.jsdelivr.net/gh/${fullName}@latest/package.json`, { next: { revalidate: CACHE_REVALIDATE_TS }, });
   const packageName = await packageData.json().then((data) => data.name).catch(() => null);
-
+  console.error('packageName', packageName)
   if (!packageName) return [];
 
   const dependentRepositoryData = await fetch(`https://www.npmjs.com/browse/depended/${packageName}`, {

@@ -61,7 +61,7 @@ export default async function Page({ params }: RepoPageProps) {
         />
       </div>
 
-      <div className='mt-12'>
+      <div className='mt-24'>
         <Recipients
           repo={repo}
           owner={owner}
@@ -78,7 +78,7 @@ export default async function Page({ params }: RepoPageProps) {
         repo={repo}
       />
       
-      <div className='mt-12'>
+      <div className='mt-24'>
         <Title level={2}>Top contributors</Title>
 
         <Contributions
@@ -87,7 +87,7 @@ export default async function Page({ params }: RepoPageProps) {
         />
       </div>
 
-      <div className='mt-12'>
+      <div className='mt-24'>
         <Title level={2}>Recent events</Title>
 
         <div className='mt-8'>
