@@ -32,7 +32,7 @@ export const RecentEventsPagination: FC<IRecentEventsPaginationProps> = ({ class
   useEffect(() => {
 
     if (page > 0) {
-      getRecentEvents(page).then((data) => {
+      getRecentEvents(page + 1).then((data) => {
         setEvents(e => {
           return [...e, ...data.events]
         });
