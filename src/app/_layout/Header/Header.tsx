@@ -108,8 +108,10 @@ export const Header = () => {
         </Popover>
       </Popover.Group>
       <div className="hidden lg:flex lg:flex-1 lg:justify-end space-x-3 items-center">
-        <SearchPanel />
-        
+        <div className='mr-5'>
+          <SearchPanel />
+        </div>
+
         <div>
           <Link href="/settings" className={cn("text-sm font-semibold leading-6 text-gray-900", { "text-primary": pathname === "/settings" })}>
             My repos

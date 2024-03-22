@@ -36,7 +36,7 @@ export const Meta: FC<IMetaProps> = async ({ owner, repo }) => {
         <img src={getAvatarUrl(owner)} className="rounded-full" width="70px" height="70px" alt={owner} />
         <Title level={2}>{truncate(`${owner}/${repo}`, 35)}</Title>
         {bannerExists ? <div><VerificationIcon /> </div> : null}
-        <a href={`https://github.com/${owner}/${repo}`} target="_blank" rel="noopener"><GithubLogoIcon fill="#101827" className="h-8 w-8 stroke-gray-900" /></a>
+        <a href={`https://github.com/${owner}/${repo}`} target="_blank" rel="noopener nofollow"><GithubLogoIcon fill="#101827" className="h-8 w-8 stroke-gray-900" /></a>
       </div>
 
       <div className='flex space-x-4 md:mt-0 mt-4'>
