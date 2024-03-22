@@ -2,7 +2,7 @@
 
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { Combobox } from '@headlessui/react';
-import { FC, useEffect, useState } from 'react';
+import { ClipboardEventHandler, FC, useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 import { debounce } from 'lodash';
 import { Octokit } from "@octokit/rest";
@@ -16,6 +16,7 @@ interface ISearchProps {
   placeholder?: string;
   className?: string;
   value?: string | null;
+  forcedSelection?: boolean;
   showSearchIcon?: boolean;
   size?: "default" | "large";
   error?: boolean | string;
@@ -24,10 +25,11 @@ interface ISearchProps {
   onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
-export const Search: FC<ISearchProps> = ({ placeholder, className, size = "default", type = "default", value = null, error, showSearchIcon = false, onChange, onKeyDown }) => {
+export const Search: FC<ISearchProps> = ({ placeholder, className, size = "default", type = "default", value = null, error, showSearchIcon = false, onChange, onKeyDown, forcedSelection = false }) => {
   const [query, setQuery] = useState('');
   const [searchList, setSearchList] = useState<ISearchRepoItem[]>([]);
   const { data } = useSession();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const search = async () => {
     const github = new Octokit({ auth: data?.access_token });
@@ -60,17 +62,38 @@ export const Search: FC<ISearchProps> = ({ placeholder, className, size = "defau
   };
 
   useEffect(() => {
-    if (query) {
+    if (query && !query.includes("https://") ) {
       search();
     }
   }, [query]);
 
   const handleQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.value.includes("https://github.com/")) {
-      const fullName = event.target.value.replace("https://github.com/", "");
-      onChange && onChange(fullName);
-    } else {
-      setQuery(event.target.value);
+    setQuery(event.target.value);
+  }
+
+  const handleEnter = (ev: React.KeyboardEvent) => {
+    const fullName = inputRef.current?.value.replace("https://github.com/", "");
+
+    if (ev.key === "Enter" && fullName && !searchList.length && fullName.split("/").length === 2) {
+      setQuery('');
+      ev.preventDefault();
+      setSearchList([]);
+      onChange && onChange(String(fullName).toLowerCase());
+    }
+  }
+
+  const handlePaste: ClipboardEventHandler<HTMLInputElement> = (ev) => {
+    const data = ev.clipboardData.getData("text/plain");
+
+    if (data.startsWith("https://github.com/")) {
+      const dataWithoutUrl = data.replace("https://github.com/", "");
+
+      if (dataWithoutUrl.split("/").length === 2) {
+        setQuery('');
+        setSearchList([]);
+
+        onChange && onChange(String(dataWithoutUrl).toLowerCase());
+      }
     }
   }
 
@@ -84,10 +107,15 @@ export const Search: FC<ISearchProps> = ({ placeholder, className, size = "defau
 
       <Combobox.Input
         autoComplete="off"
-        onKeyDown={onKeyDown}
+        onKeyDown={(ev) => {
+          onKeyDown && onKeyDown(ev);
+          forcedSelection && handleEnter(ev);
+        }}
+        ref={inputRef}
         placeholder={placeholder}
-        className={cn({"pl-8": showSearchIcon}, "w-full h-[40px] rounded-md border-0 bg-white py-2 px-4 text-gray-900 shadow-sm ring-1  ring-gray-300 focus:ring-2 sm:leading-6", size === "large" ? "py-3 text-md" : "text-sm ", { "ring-primary ring-2": type === "primary" }, {"ring-red-500": error })}
+        className={cn({ "pl-8": showSearchIcon }, "w-full h-[40px] rounded-md border-0 bg-white py-2 px-4 text-gray-900 shadow-sm ring-1  ring-gray-300 focus:ring-2 sm:leading-6", size === "large" ? "py-3 text-md" : "text-sm ", { "ring-primary ring-2": type === "primary" }, { "ring-red-500": error })}
         onChange={debounce(handleQueryChange, 800)}
+        onPaste={handlePaste}
       />
 
 

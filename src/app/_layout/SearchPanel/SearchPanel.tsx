@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { ClipboardEventHandler, Fragment, useEffect, useRef, useState } from 'react';
 
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline"
 import { Combobox, Dialog, Transition } from '@headlessui/react'
@@ -76,15 +76,7 @@ export const SearchPanel = () => {
 
   useEffect(() => {
     if (query) {
-      const queryWithoutProtocol = query.replace("https://github.com/", "");
-
-      if (query.includes("https://github.com/") && queryWithoutProtocol.split("/").length === 2) {
-        router.push("/repo/" + String(queryWithoutProtocol).toLowerCase());
-
-        setOpen(false);
-        setSearchList([]);
-        setLoading(false);
-      } else {
+      if (!query.includes("https://")) {
         search();
       }
 
@@ -116,6 +108,22 @@ export const SearchPanel = () => {
     }
   }
 
+  const handlePaste: ClipboardEventHandler<HTMLInputElement> = (ev) => {
+    const data = ev.clipboardData.getData("text/plain");
+
+    if (data.startsWith("https://github.com/")) {
+      const dataWithoutUrl = data.replace("https://github.com/", "");
+
+      if (dataWithoutUrl.split("/").length === 2) {
+        setOpen(false);
+        setSearchList([]);
+        setLoading(false);
+
+        router.push("/repo/" + String(dataWithoutUrl).toLowerCase());
+      }
+    }
+  }
+
   useEffect(() => {
     setSearchList([]);
     setLoading(false);
@@ -127,7 +135,7 @@ export const SearchPanel = () => {
       placement="bottom"
       trigger={["hover"]}
       overlayClassName="max-w-[250px]"
-      overlay={<span>Press CMD or Ctrl + K for search</span>}
+      overlay={<span>Search for repos to donate to</span>}
     >
       <MagnifyingGlassIcon onClick={() => setOpen(true)} className="h-6 w-6 text-gray-900 cursor-pointer" />
     </Tooltip>
@@ -174,6 +182,7 @@ export const SearchPanel = () => {
                     placeholder="Repo name, e.g. bitcoin/bitcoin"
                     onChange={debounce(handleQueryChange, 800)}
                     onKeyDown={handleEnter}
+                    onPaste={handlePaste}
                     ref={inputRef}
                   />
                 </div>
@@ -206,7 +215,7 @@ export const SearchPanel = () => {
                   <p className="p-4 text-sm text-gray-500">No repo found.</p>
                 )}
 
-                {loading && query !== '' && <div className="p-4 flex justify-center">
+                {loading && query !== '' && !query.startsWith("https://") && <div className="p-4 flex justify-center">
                   <Spin />
                 </div>}
               </Combobox>
