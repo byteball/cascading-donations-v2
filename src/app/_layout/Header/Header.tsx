@@ -20,6 +20,7 @@ const AddWalletModal = dynamic(() => import('@/modals/AddWalletModal').then((Com
 
 import { selectWalletAddress } from '@/store/slices/settingsSlice';
 import { useSelector } from '@/store';
+import { SearchPanel } from '../SearchPanel/SearchPanel';
 
 const more = [
   { name: 'About Obyte', href: 'https://obyte.org/', description: 'Running since 2016, Obyte is a distributed ledger based on directed acyclic graph (DAG).' },
@@ -107,7 +108,8 @@ export const Header = () => {
         </Popover>
       </Popover.Group>
       <div className="hidden lg:flex lg:flex-1 lg:justify-end space-x-3 items-center">
-
+        <SearchPanel />
+        
         <div>
           <Link href="/settings" className={cn("text-sm font-semibold leading-6 text-gray-900", { "text-primary": pathname === "/settings" })}>
             My repos

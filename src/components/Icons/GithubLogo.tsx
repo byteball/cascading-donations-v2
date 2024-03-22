@@ -3,8 +3,8 @@ import cn from 'classnames';
 
 import { IIconProps } from './interface';
 
-export const GithubLogoIcon: FC<IIconProps> = ({ className = "" }) => <svg className={cn(className)} viewBox="0,0,256,256">
-  <g fill="#ffffff" fillRule="nonzero" stroke="none" strokeWidth="1" strokeLinecap="butt"
+export const GithubLogoIcon: FC<IIconProps> = ({ className = "", fill = "#ffffff" }) => <svg className={cn(className)} viewBox="0,0,256,256">
+  <g fill={fill} fillRule="nonzero" stroke="none" strokeWidth="1" strokeLinecap="butt"
     strokeLinejoin="miter" stroke-miterlimit="10" strokeDasharray="" strokeDashoffset="0">
     <g transform="scale(10.66667,10.66667)">
       <path
