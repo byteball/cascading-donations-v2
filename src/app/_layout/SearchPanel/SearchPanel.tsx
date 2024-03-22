@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline"
 import { Combobox, Dialog, Transition } from '@headlessui/react'
@@ -19,6 +19,7 @@ export const SearchPanel = () => {
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const [searchList, setSearchList] = useState<ISearchRepoItem[]>([]);
   const { data } = useSession();
@@ -45,6 +46,8 @@ export const SearchPanel = () => {
     const [owner, name] = query.split("/");
     let q = `${query} fork:true`;
     let result = [];
+
+    if (!loading) return;
 
     try {
       console.log('log: search (user limit)');
@@ -73,23 +76,51 @@ export const SearchPanel = () => {
 
   useEffect(() => {
     if (query) {
-      search();
+      const queryWithoutProtocol = query.replace("https://github.com/", "");
+
+      if (query.includes("https://github.com/") && queryWithoutProtocol.split("/").length === 2) {
+        router.push("/repo/" + String(queryWithoutProtocol).toLowerCase());
+
+        setOpen(false);
+        setSearchList([]);
+        setLoading(false);
+      } else {
+        search();
+      }
+
     } else {
       setSearchList([]);
     }
   }, [query]);
 
   const handleQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.value.includes("https://github.com/")) {
-      const fullName = event.target.value.replace("https://github.com/", "");
-      router.push("/repo/" + String(fullName).toLowerCase());
+
+    setQuery(event.target.value);
+
+    if (searchList.length) setSearchList([]);
+
+    if (!loading) setLoading(true);
+  }
+
+  const handleEnter = (ev: React.KeyboardEvent) => {
+    const fullName = inputRef.current?.value.replace("https://github.com/", "");
+
+    if (ev.key === "Enter" && fullName && !searchList.length && fullName.split("/").length === 2) {
+      setQuery('');
+      ev.preventDefault();
       setOpen(false);
-    } else {
-      setQuery(event.target.value);
+
       setSearchList([]);
-      setLoading(true);
+      setLoading(false);
+      router.push("/repo/" + String(fullName).toLowerCase());
     }
   }
+
+  useEffect(() => {
+    setSearchList([]);
+    setLoading(false);
+    setQuery('');
+  }, [open])
 
   return <>
     <Tooltip
@@ -105,6 +136,7 @@ export const SearchPanel = () => {
     <Transition.Root show={open} as={Fragment} afterLeave={() => {
       setQuery('');
       setSearchList([]);
+      setLoading(false);
     }} appear>
       <Dialog as="div" className="relative z-10" onClose={setOpen}>
         <Transition.Child
@@ -141,6 +173,8 @@ export const SearchPanel = () => {
                     className="h-12 w-full border-0 bg-transparent pl-11 pr-4 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm"
                     placeholder="Repo name, e.g. bitcoin/bitcoin"
                     onChange={debounce(handleQueryChange, 800)}
+                    onKeyDown={handleEnter}
+                    ref={inputRef}
                   />
                 </div>
 
@@ -167,6 +201,7 @@ export const SearchPanel = () => {
                     </Combobox.Option>
                   ))}
                 </Combobox.Options> : null}
+
                 {query !== '' && searchList?.length === 0 && !loading && (
                   <p className="p-4 text-sm text-gray-500">No repo found.</p>
                 )}
