@@ -65,6 +65,8 @@ export const Search: FC<ISearchProps> = ({ placeholder, className, size = "defau
     if (query && !query.includes("https://") ) {
       search();
     }
+    
+    setSearchList([]);
   }, [query]);
 
   const handleQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {

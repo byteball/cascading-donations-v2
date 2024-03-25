@@ -75,14 +75,11 @@ export const SearchPanel = () => {
   };
 
   useEffect(() => {
-    if (query) {
-      if (!query.includes("https://")) {
-        search();
-      }
-
-    } else {
-      setSearchList([]);
+    if (query && !query.includes("https://")) {
+      search();
     }
+
+    setSearchList([]);
   }, [query]);
 
   const handleQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
