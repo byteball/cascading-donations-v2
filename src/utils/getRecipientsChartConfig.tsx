@@ -79,7 +79,7 @@ export const getRecipientsChartConfig = (fullName: string, width: number): PieCo
                     <span
                       style={{ lineHeight: 1.3 }}
                     >
-                      <img src={avatarUrl} style={{ width: "1em", height: "1em", borderRadius: 5, marginRight: 5, marginBottom: 3 }} alt={name} />
+                      <img src={avatarUrl} style={{ width: "1em", height: "1em", borderRadius: 5, marginRight: 5, marginBottom: 3, display: "inline" }} alt={name} />
                       <span style={{ marginRight: 4 }}>{name}</span>
                       <span>receives {value}% of donations</span>
                     </span>
