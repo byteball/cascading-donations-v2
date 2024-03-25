@@ -7,7 +7,7 @@ import { useSession } from "next-auth/react";
 import { Octokit } from "@octokit/rest";
 import { debounce } from "lodash";
 import cn from "classnames";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next-nprogress-bar";
 
 import { ISearchRepoItem } from "@/services/backend.server";
 import { Spin } from "@/components";
