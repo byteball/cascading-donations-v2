@@ -3,7 +3,7 @@
 import { FC, useEffect, useState } from "react";
 import { useWindowSize } from "usehooks-ts";
 import { Pie, PieConfig } from '@ant-design/charts';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next-nprogress-bar';
 
 import { IParsedRule, getRecipientsChartConfig } from "@/utils/getRecipientsChartConfig";
 import { IRules } from "@/utils/getRepoRules";

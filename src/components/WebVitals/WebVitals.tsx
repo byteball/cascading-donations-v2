@@ -1,6 +1,7 @@
 'use client'
 
 import { useReportWebVitals } from 'next/web-vitals'
+import { AppProgressBar as ProgressBar } from 'next-nprogress-bar';
 
 // see more https://nextjs.org/docs/app/building-your-application/optimizing/analytics#web-vitals
 
@@ -34,5 +35,10 @@ export const WebVitals = () => {
     }
   });
 
-  return null
+  return <ProgressBar
+    color="#0137FF"
+    options={{ showSpinner: true }}
+    shallowRouting
+    shouldCompareComplexProps={true}
+  />
 }
