@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 
-import { RecentEvents, Spin, SubTitle, Title } from "@/components"
+import { RecentEvents, SubTitle, Title } from "@/components"
 
 import { Meta } from '../../_layout/Meta';
 import { Contributions } from '../../_layout/Contributors';

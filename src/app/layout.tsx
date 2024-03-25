@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import NextTopLoader from 'nextjs-toploader';
 
 import { Footer, Header, WelcomeBanner } from './_layout';
 
@@ -31,6 +32,8 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <WebVitals />
+        <NextTopLoader color='#0137FF' />
+        
         <WelcomeBanner />
         <GithubSessionProvider>
           <StoreProvider>
