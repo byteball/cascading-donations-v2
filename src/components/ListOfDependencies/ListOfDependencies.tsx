@@ -11,8 +11,7 @@ interface IDependencies {
   repo: string;
 }
 
-
-export const ListOfDependencies: FC<IDependencies> = async ({ owner, repo }) => {
+const ListOfDependencies: FC<IDependencies> = async ({ owner, repo }) => {
   const dependencies = await getPackageDependencies(`${owner}/${repo}`);
 
   const filteredDependencies = dependencies.filter(d => d.repo).map((d) => ({ ...d, key: d.name + (Math.random() + 1).toString(36).substring(2) }));
@@ -40,3 +39,5 @@ export const ListOfDependencies: FC<IDependencies> = async ({ owner, repo }) => 
     </>
   )
 }
+
+export default ListOfDependencies;

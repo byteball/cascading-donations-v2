@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation';
 import { Metadata } from 'next';
+import dynamic from 'next/dynamic';
 
-import { ListOfDependencies, RecentEvents, SubTitle, Title } from "@/components"
+import { RecentEvents, Spin, SubTitle, Title } from "@/components"
 
 import { Meta } from '../../_layout/Meta';
 import { Contributions } from '../../_layout/Contributors';
@@ -11,7 +12,18 @@ import { Recipients } from '../../_layout/Recipients';
 import appConfig from '@/appConfig';
 import { getRepoRecentEvents } from '@/services/backend.server';
 import { Shares } from '../../_layout/Shares';
-import { ListOfDependents } from '@/components/ListOfDependents/ListOfDependents';
+import { ListOfDependenciesLoading } from '@/components/ListOfDependencies/ListOfDependenciesLoading';
+import { ListOfDependentsLoading } from '@/components/ListOfDependents/ListOfDependentsLoading';
+
+const ListOfDependencies = dynamic(() => import("@/components/ListOfDependencies/ListOfDependencies"), {
+  ssr: true,
+  loading: () => <ListOfDependenciesLoading />,
+});
+
+const ListOfDependents = dynamic(() => import("@/components/ListOfDependents/ListOfDependents"), {
+  ssr: true,
+  loading: () => <ListOfDependentsLoading />,
+});
 
 type RepoPageProps = {
   params: { repo: string, owner: string }
@@ -72,12 +84,12 @@ export default async function Page({ params }: RepoPageProps) {
         owner={owner}
         repo={repo}
       />
-      
-       <ListOfDependents
+
+      <ListOfDependents
         owner={owner}
         repo={repo}
       />
-      
+
       <div className='mt-24'>
         <Title level={2}>Top contributors</Title>
 
