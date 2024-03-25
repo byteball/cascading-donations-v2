@@ -36,6 +36,7 @@ export const WebVitals = () => {
   });
 
   return <ProgressBar
+    height="3px"
     color="#0137FF"
     options={{ showSpinner: true }}
     shallowRouting
