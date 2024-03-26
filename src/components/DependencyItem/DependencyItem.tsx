@@ -13,7 +13,7 @@ export const DependencyItem: FC<DependencyItemProps> = ({ repo, description }) =
 
   <div className="min-w-0 flex-1">
     <div className="block w-full">
-      <Link href={`/repo/${repo}`} className='font-medium text-md md:text-xl line-clamp-1'>{repo}</Link>
+      <Link href={`/repo/${repo.toLowerCase()}`} className='font-medium text-md md:text-xl line-clamp-1 break-all'>{repo}</Link>
     </div>
 
     {description ? <div className="text-gray-500 line-clamp-3">

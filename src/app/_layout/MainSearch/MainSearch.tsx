@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter } from "next-nprogress-bar";
 
 import { Search } from "@/components"
 import { sendGAEvent } from "@/gtag";
@@ -13,6 +13,7 @@ export const MainSearch = () => {
     className="md:w-[60%]"
     size="large"
     type="primary"
+    forcedSelection={true}
     showSearchIcon
     onChange={(fullName: string) => {
       router.push("/repo/" + String(fullName).toLowerCase());

@@ -11,7 +11,7 @@ interface IListOfDependentsProps {
   repo: string;
 }
 
-export const ListOfDependents: FC<IListOfDependentsProps> = async ({ owner, repo }) => {
+const ListOfDependents: FC<IListOfDependentsProps> = async ({ owner, repo }) => {
   const dependents = await getListOfDependentPackages(`${owner}/${repo}`);
 
   const filteredDependents = dependents.filter(d => d?.name).map((d) => ({ ...d, key: d.name + (Math.random() + 1).toString(36).substring(2) }));
@@ -38,3 +38,5 @@ export const ListOfDependents: FC<IListOfDependentsProps> = async ({ owner, repo
     </>
   )
 }
+
+export default ListOfDependents;
