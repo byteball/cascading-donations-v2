@@ -39,7 +39,12 @@ export const WebVitals = () => {
     height="3px"
     color="#0137FF"
     options={{ showSpinner: true }}
-    shallowRouting
-    shouldCompareComplexProps={true}
+    targetPreprocessor={(url) => {
+      if (url.protocol === 'obyte:') {
+        return new URL(window.location.href);
+      } else {
+        return url;
+      }
+    }}
   />
 }
