@@ -30,6 +30,8 @@ type RepoPageProps = {
   params: { repo: string, owner: string }
 }
 
+const defaultFullDescription = 'Cascading donations to github repositories. Support open-source projects with donations in crypto, and they will automatically forward a part of your donation to other open-source projects that made them possible.';
+
 export async function generateMetadata(
   { params }: RepoPageProps
 ): Promise<Metadata> {
@@ -38,9 +40,11 @@ export async function generateMetadata(
 
   return {
     title: `Kivach - ${fullName} | ${metaData?.description || 'Cascading donations'}`,
-    description: metaData?.description || 'Cascading donations to github repositories. Support open-source projects with donations in crypto, and they will automatically forward a part of your donation to other open-source projects that made them possible.',
+    description: metaData?.description || defaultFullDescription,
     openGraph: {
       images: [appConfig.BACKEND_API_URL + '/banner/' + fullName + '.png'],
+      title: `Kivach - ${fullName} | ${metaData?.description || 'Cascading donations'}`,
+      description: metaData?.description || defaultFullDescription,
     },
   }
 }
