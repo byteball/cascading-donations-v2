@@ -186,7 +186,7 @@ export const Footer = () => {
 				</div>
 				<div className="md:order-1 flex flex-col">
 					<p className="text-xs md:mt-0 mt-2 mb-1 leading-5 text-gray-500 order-2 md:order-none">
-						&copy; {(new Date).getFullYear()} <a target="_blank" rel="noopener" href="https://obyte.org">Obyte</a>. All rights reserved. All information about repositories belongs to their owners.
+						&copy; 2022-{(new Date).getFullYear()} <a target="_blank" rel="noopener" href="https://obyte.org">Obyte</a>. All rights reserved. All information about repositories belongs to their owners.
 					</p>
 					<p className="text-xs mt-8 md:mt-0 leading-5 text-gray-500">
 						More information about Kivach in the <a target="_blank" rel="noopener" href={appConfig.INTRODUCTORY_ARTICLE_URL} className="text-primary">introductory article</a>.
