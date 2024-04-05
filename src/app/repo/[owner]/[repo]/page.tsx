@@ -14,6 +14,7 @@ import { getRepoRecentEvents } from '@/services/backend.server';
 import { Shares } from '../../_layout/Shares';
 import { ListOfDependenciesLoading } from '@/components/ListOfDependencies/ListOfDependenciesLoading';
 import { ListOfDependentsLoading } from '@/components/ListOfDependents/ListOfDependentsLoading';
+import { getMetaInformation } from '@/services/github.server';
 
 const ListOfDependencies = dynamic(() => import("@/components/ListOfDependencies/ListOfDependencies"), {
   ssr: true,
@@ -33,10 +34,11 @@ export async function generateMetadata(
   { params }: RepoPageProps
 ): Promise<Metadata> {
   const fullName = `${params.owner}/${params.repo}`.toLowerCase();
+  const metaData = await getMetaInformation(`${params.owner}/${params.repo}`);
 
   return {
-    title: `Kivach - ${fullName}`,
-    description: 'Cascading donations to github repositories. Support open-source projects with donations in crypto, and they will automatically forward a part of your donation to other open-source projects that made them possible.',
+    title: `Kivach - ${fullName} | ${metaData?.description || 'Cascading donations'}`,
+    description: metaData?.description || 'Cascading donations to github repositories. Support open-source projects with donations in crypto, and they will automatically forward a part of your donation to other open-source projects that made them possible.',
     openGraph: {
       images: [appConfig.BACKEND_API_URL + '/banner/' + fullName + '.png'],
     },
