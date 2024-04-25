@@ -20,26 +20,28 @@ export const getPackageDependencies = async (fullName: string) => {
 
       Object.entries(packageDependencies).slice(0, 50).forEach(([packageName, linkOrVersion]) => {
 
-        if (linkOrVersion.includes("https://github.com") && linkOrVersion.endsWith('.git')) {
-          const repoName = transformUrlToRepoFullName(linkOrVersion);
-          // direct link to the github repository // EXAMPLE: https://github.com/byteball/ocore
-          getters.push(getDescriptionFromGithubByFullName(repoName).then((data) => {
-            result.push(({ repo: data.name, description: data.description }))
-          }));
-        } if (linkOrVersion.includes("github:") || linkOrVersion.includes("github.com:")) {
-          getters.push(getDescriptionFromGithubByFullName(linkOrVersion.split(":")[1]).then((data) => {
-            result.push(({ repo: data.name, description: data.description }))
-          }));
-        } if (packageName.startsWith("git@github.com:")) {
-          getters.push(getDescriptionFromGithubByFullName(linkOrVersion.split(":")[1]).then((data) => {
-            result.push(({ repo: data.name, description: data.description }))
-          }));
-        } else {
-          getters.push(getRepoFullNameByPackageName(packageName).then((data) => {
-            if (data && !data.name?.startsWith('packages/')) {
-              result.push({ repo: data.name || "", description: data.description });
-            }
-          }));
+        if (!packageName.startsWith("packages/") && !linkOrVersion?.startsWith("link:")) {
+          if (linkOrVersion.includes("https://github.com") && linkOrVersion.endsWith('.git')) {
+            const repoName = transformUrlToRepoFullName(linkOrVersion);
+            // direct link to the github repository // EXAMPLE: https://github.com/byteball/ocore
+            getters.push(getDescriptionFromGithubByFullName(repoName).then((data) => {
+              result.push(({ repo: data.name, description: data.description }))
+            }));
+          } if (linkOrVersion.includes("github:") || linkOrVersion.includes("github.com:")) {
+            getters.push(getDescriptionFromGithubByFullName(linkOrVersion.split(":")[1]).then((data) => {
+              result.push(({ repo: data.name, description: data.description }))
+            }));
+          } if (packageName.startsWith("git@github.com:")) {
+            getters.push(getDescriptionFromGithubByFullName(linkOrVersion.split(":")[1]).then((data) => {
+              result.push(({ repo: data.name, description: data.description }))
+            }));
+          } else {
+            getters.push(getRepoFullNameByPackageName(packageName).then((data) => {
+              if (data && !data.name?.startsWith('packages/')) {
+                result.push({ repo: data.name || "", description: data.description });
+              }
+            }));
+          }
         }
       });
 
@@ -85,7 +87,7 @@ export const getRepoFullNameByPackageName = async (packageName: string) => {
     });
     const packageData = await packageDataResponse.json();
 
-    if (typeof packageData.repository === "string") {
+    if (typeof packageData.repository === "string" && !packageData.repository.includes("packages/")) {
       if (packageData.repository.startsWith("https://github.com/")) {
         return ({ name: transformUrlToRepoFullName(packageData.repository), description: packageData.description })
       } else if (packageData.repository.includes("github")) {
@@ -111,14 +113,19 @@ export const getRepoFullNameByPackageName = async (packageName: string) => {
 
 export const transformUrlToRepoFullName = (url: string) => {
   let nameWithoutProtocol = '';
-
-  if (url.startsWith("git@github.com:")) {
-    nameWithoutProtocol = url.replace('git@github.com:', '')
+  if (url.includes("ssh://")) {
+    nameWithoutProtocol = "";
+  } else if (url.startsWith("git@github.com:")) {
+    nameWithoutProtocol = url.replace('git@github.com:', '');
   } else if (url.startsWith("git://github.com/")) {
     nameWithoutProtocol = url.replace("git://github.com/", '')
   } else if (url.startsWith("github:")) {
     nameWithoutProtocol = url.replace('github:', '')
-  } else {
+  } else if (url.startsWith("git+git@github.com:")) {
+    nameWithoutProtocol = url.replace('git+git@github.com:', '')
+  } else if (url.startsWith("git@")) {
+    nameWithoutProtocol = "";
+    } else {
     const linkOrVersionSplit = url.split("/");
     nameWithoutProtocol = linkOrVersionSplit.slice(-2).join('/')
   }
