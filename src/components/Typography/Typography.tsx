@@ -13,10 +13,10 @@ const titleStyles: IStyles = {
   3: "text-2xl sm:text-3xl",
 }
 
-export const Title: FC<ITitleProps> = ({ level, children, className = "" }) => {
+export const Title: FC<ITitleProps> = ({ level, displayAsLevel, children, className = "" }) => {
   const Tag = `h${level}` as keyof JSX.IntrinsicElements;
 
-  return <Tag className={cn("text-gray-900 font-bold", titleStyles[level] || "", className)}>{children}</Tag>
+  return <Tag className={cn("text-gray-900 font-bold", titleStyles[displayAsLevel || level] || "", className)}>{children}</Tag>
 }
 
 const subTitleStyles: IStyles = {

@@ -34,7 +34,7 @@ export const Meta: FC<IMetaProps> = async ({ owner, repo }) => {
 
       <div className="flex flex-col md:flex-row justify-start md:items-center md:space-x-8 space-y-4 md:space-y-0">
         <img src={getAvatarUrl(owner)} className="rounded-full" width="70px" height="70px" alt={owner} />
-        <Title level={2}>{truncate(`${owner}/${repo}`, 35)}</Title>
+        <Title level={1} displayAsLevel={2}>{truncate(`${owner}/${repo}`, 35)}</Title>
         {bannerExists ? <div><VerificationIcon /> </div> : null}
         <a href={`https://github.com/${owner}/${repo}`} target="_blank" rel="noopener nofollow"><GithubLogoIcon fill="#101827" className="h-8 w-8 stroke-gray-900" /></a>
       </div>
