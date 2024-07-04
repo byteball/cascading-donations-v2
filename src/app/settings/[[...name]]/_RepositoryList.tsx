@@ -10,12 +10,13 @@ import useSWR from 'swr';
 
 import { Button, Input, Select, Spin } from "@/components";
 import { useSelector } from "@/store";
-import { getAvatarUrl } from "@/utils";
+import { generateBannerCode, getAvatarUrl } from "@/utils";
 import { ManageModal } from "@/modals";
 import { selectWalletAddress, selectWalletGithubAccounts, selectWalletGithubAccountsPersisted, selectWalletWasPersisted } from "@/store/slices/settingsSlice";
 
 import appConfig from "@/appConfig";
 import { getTokens } from "@/store/slices/tokensSlice";
+import { CheckCircleIcon } from "@heroicons/react/24/outline";
 interface IRepositoryData {
   full_name: string;
   description: string | null;
@@ -23,6 +24,7 @@ interface IRepositoryData {
   stargazers_count: number;
   fork: boolean;
   updated_at: string | null;
+  fullSetup?: boolean;
 }
 interface IRepositoriesState {
   data: IRepositoryData[];
@@ -118,12 +120,29 @@ export const RepositoryList: FC<IRepositoryListProps> = ({ repo, owner }) => {
     const githubRestClient = new Octokit({ auth: githubSession?.access_token });
 
     if (currentAccount) {
-      const data = await githubRestClient.rest.repos.listForUser({
+      const data: any[] = await githubRestClient.rest.repos.listForUser({
         username: currentAccount,
         per_page: 100,
         page,
         sort: "updated",
       }).then(async (res) => res.data.map(({ full_name, description, license, stargazers_count, fork, updated_at }) => ({ full_name, description, license, stargazers_count, fork, updated_at })));
+
+      if (githubSession?.access_token) {
+        const fullSetupCheckerGetters = data.map(({ full_name }, index: number) => {
+          return githubRestClient.rest.repos.getReadme({
+            owner: currentAccount,
+            repo: full_name.split("/")[1]
+          }).then(({ data: content }) => {
+            const code = generateBannerCode(full_name.toLowerCase());
+            const readme = atob(content.content);
+            data[index].fullSetup = readme?.includes(code) || false;
+          }).catch(() => {
+            data[index].fullSetup = false;
+          });
+        });
+
+        await Promise.all(fullSetupCheckerGetters);
+      }
 
       setRepositories((d) => ({ ...d, data: [...d.data, ...data], loading: data.length >= 100, loaded: data.length < 100, currentAccount }));
 
@@ -196,11 +215,12 @@ export const RepositoryList: FC<IRepositoryListProps> = ({ repo, owner }) => {
           {repositories.loading ? <div className="flex justify-center">
             <Spin size="large" />
           </div> : <div>
-            {sortedRepos.length > 0 ? sortedRepos.slice(0, countOnPage * page).map(({ full_name, updated_at, stargazers_count, description }) => <div key={full_name} className="divide-y divide-gray-100">
+            {sortedRepos.length > 0 ? sortedRepos.slice(0, countOnPage * page).map(({ full_name, description, fullSetup }) => <div key={full_name} className="divide-y divide-gray-100">
               <li className="flex md:items-center justify-between gap-x-6 py-5 flex-col md:flex-row ">
                 <div className="min-w-0 w-auto md:w-[600px]">
                   <div className="flex items-start gap-x-3 gap-y-1 flex-wrap md:flex-nowrap ">
                     <a className="text-sm font-semibold leading-6 text-gray-900" href={`https://github.com/${full_name}`} target="_blank" rel="noopener">{full_name}</a>
+                    {fullSetup ? <CheckCircleIcon className="w-[1.5em] h-[1.5em] inline text-primary" /> : null}
                     {String(full_name).toLowerCase() in rulesByOwner ? null : <p
                       className={cn(
                         statuses["no_rules"],
