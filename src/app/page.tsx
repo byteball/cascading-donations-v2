@@ -57,7 +57,7 @@ export default async function Home({ searchParams }: { searchParams: { recentPag
                 </div>
               </div>
               <div className="mt-14 flex justify-end gap-8 lg:mt-0 lg:pl-0">
-                <img src="/how.svg" alt="How it works" />
+                <img src="/cascading-donations.svg" alt="How it works" />
               </div>
             </div>
           </div>
