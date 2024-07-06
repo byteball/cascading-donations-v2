@@ -10,7 +10,7 @@
 		"notification_aa": "AA for notifications about new donations.",
 		"donate": "Donate to a repo, set to 1.",
 		"donor": "Address of the donor.",
-		"distribute": "Distrubute the donations, set to 1.",
+		"distribute": "Distribute the donations, set to 1.",
 		"to": "Address to pay the owner's share to.",
 		"nickname": "A nickname to set for your address."
 	}
