@@ -48,7 +48,7 @@ export const getPopularRepository: IGetPopularRepository = async (limit?: number
     }
   }
 
-  const response = await fetch(`${appConfig.BACKEND_API_URL}/popular`);
+  const response = await fetch(`${appConfig.BACKEND_API_URL}/popular`, { next: { revalidate: 3600 } });
   const data = await response.json();
 
   data.data.forEach((repo: PopularRepository) => {
@@ -80,7 +80,7 @@ export const getTokens = async () => {
     return cache.data;
   }
 
-  const response = await fetch(`${appConfig.BACKEND_API_URL}/tokens`);
+  const response = await fetch(`${appConfig.BACKEND_API_URL}/tokens`, { next: { revalidate: 3600 } });
   const data = await response.json();
 
   Object.entries(data.data.Obyte as IObyteTokens).forEach(([asset, meta]) => {
@@ -93,7 +93,7 @@ export const getTokens = async () => {
 }
 
 export const getTotalRecentEvents = async (page: number = 1) => {
-  const responses = await fetch(`${appConfig.BACKEND_API_URL}/recent/${page}`);
+  const responses = await fetch(`${appConfig.BACKEND_API_URL}/recent/${page}`, { next: { revalidate: 3600 } });
   const data = await responses.json();
 
   const events = await responseToEvent(data.data);
@@ -103,7 +103,7 @@ export const getTotalRecentEvents = async (page: number = 1) => {
 }
 
 export const getRepoRecentEvents = async (fullName: string, page: number = 1) => {
-  const responses = await fetch(`${appConfig.BACKEND_API_URL}/recent/${fullName}/${page}`);
+  const responses = await fetch(`${appConfig.BACKEND_API_URL}/recent/${fullName}/${page}`, { next: { revalidate: 3600 } });
   const data = await responses.json();
 
   const events = await responseToEvent(data.data);

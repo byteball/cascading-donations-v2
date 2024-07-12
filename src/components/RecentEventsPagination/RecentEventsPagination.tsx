@@ -2,10 +2,10 @@
 
 import { FC, useEffect, useState } from "react";
 import cn from "classnames";
-import { useRouter } from "next/navigation";
 
 import { Button, RecentEvents } from "..";
 import { responseToEvent } from "@/utils/responseToEvent";
+
 import appConfig from "@/appConfig";
 
 interface IRecentEventsPaginationProps {
@@ -14,7 +14,7 @@ interface IRecentEventsPaginationProps {
 }
 
 const getRecentEvents = async (page: number) => {
-  const responses = await fetch(`${appConfig.BACKEND_API_URL}/recent/${page}`);
+  const responses = await fetch(`${appConfig.BACKEND_API_URL}/recent/${page}`, { next: { revalidate: 3600 } });
   const data = await responses.json();
 
   const events = await responseToEvent(data.data);
@@ -24,7 +24,6 @@ const getRecentEvents = async (page: number) => {
 
 
 export const RecentEventsPagination: FC<IRecentEventsPaginationProps> = ({ className = "", totalPage = 0 }) => {
-  // const router = useRouter();
   const [page, setPage] = useState(0);
   const [events, setEvents] = useState<[]>([])
 
