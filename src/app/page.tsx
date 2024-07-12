@@ -19,11 +19,8 @@ export const metadata: Metadata = {
   }
 }
 
-export default async function Home({ searchParams }: { searchParams: { recentPage: string | undefined; } }) {
+export default async function Home() {
   const popularRepositories = await getPopularRepository(9);
-  const page = Number(searchParams?.recentPage || 1)
-
-  const recentEventsPage = isNumber(Number(page)) && page > 0 ? page : 1;
 
   return (
     <main className="">
@@ -79,7 +76,7 @@ export default async function Home({ searchParams }: { searchParams: { recentPag
               Kivach works on the <a className='text-primary' href="https://obyte.org" target="_blank" rel="noopener">Obyte network</a>, and therefore you can track all donations.
             </SubTitle>
 
-            <TotalRecentEvents page={recentEventsPage} />
+            <TotalRecentEvents />
           </div>
         </div>
       </div>
