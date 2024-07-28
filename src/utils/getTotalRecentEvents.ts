@@ -1,8 +1,5 @@
 "use server";
 
-import appConfig from "@/appConfig";
-import { responseToEvent } from "@/utils/responseToEvent";
-
 const request = async (path: string, body = {}) => {
   const response = await fetch(`https://obyte.org/api/${path}`, {
     headers: {
@@ -10,7 +7,8 @@ const request = async (path: string, body = {}) => {
       'Content-Type': 'application/json',
     },
     method: "post",
-    body: JSON.stringify(body)
+    body: JSON.stringify(body),
+    next: { revalidate: 0 }
   });
 
   if (!response.ok) {
@@ -48,9 +46,3 @@ export const getAaResponses = async (aaOrAas: string | string[]) => {
 
   return await request("get_aa_responses", params) as IResponse[];
 }
-
-// export const getTotalRecentEvents = async (page: number) => {
-//   // const responses = await getAaResponses(appConfig.AA_ADDRESS!);
-
-//   return await responseToEvent(responses);
-// }

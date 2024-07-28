@@ -33,7 +33,8 @@ export const getStateVars = async ({ address, var_prefix, var_prefix_from, var_p
       'Content-Type': 'application/json',
     },
     method: "post",
-    body: JSON.stringify(params)
+    body: JSON.stringify(params),
+    next: { revalidate: 0 }
   }).then(async response => {
     if (!response.ok) {
       const errorBody = await response.text();

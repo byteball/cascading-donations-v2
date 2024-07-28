@@ -19,7 +19,7 @@ export const getTokensThunk = createAsyncThunk(
 			try {
 
 				console.log('log: load tokens')
-				const data = await fetch(`${appConfig.BACKEND_API_URL}/tokens`).then(res => res.json());
+				const data = await fetch(`${appConfig.BACKEND_API_URL}/tokens`, { next: { revalidate: 3600 } }).then(res => res.json());
 
 				LocalStorage.set('tokens', {
 					data: data?.data,
