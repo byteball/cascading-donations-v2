@@ -9,7 +9,8 @@ export const getAttestations = async (walletAddress: string) => {
     method: "post",
     body: JSON.stringify({
       address: walletAddress
-    })
+    }),
+    next: { revalidate: 0 }
   });
   if (!response.ok) {
     const errorBody = await response.text();
