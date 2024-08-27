@@ -77,7 +77,17 @@ export const getListOfDependentPackages = async (fullName: string) => {
 
   const res = await Promise.all(getters);
 
-  return res;
+  return res.filter((data) => {
+    if (data && data.name) {
+      const name = data.name.split('/').filter((name: string) => name);
+
+      if (name.length === 2 && name[0] !== 'packages') {
+        return true
+      }
+    }
+
+    return false;
+  });
 }
 
 export const getRepoFullNameByPackageName = async (packageName: string) => {
@@ -85,6 +95,7 @@ export const getRepoFullNameByPackageName = async (packageName: string) => {
     const packageDataResponse = await fetch(`https://cdn.jsdelivr.net/npm/${packageName}/package.json`, {
       next: { revalidate: CACHE_REVALIDATE_TS },
     });
+
     const packageData = await packageDataResponse.json();
 
     if (typeof packageData.repository === "string" && !packageData.repository.includes("packages/")) {
@@ -125,7 +136,7 @@ export const transformUrlToRepoFullName = (url: string) => {
     nameWithoutProtocol = url.replace('git+git@github.com:', '')
   } else if (url.startsWith("git@")) {
     nameWithoutProtocol = "";
-    } else {
+  } else {
     const linkOrVersionSplit = url.split("/");
     nameWithoutProtocol = linkOrVersionSplit.slice(-2).join('/')
   }
