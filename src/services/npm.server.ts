@@ -57,7 +57,9 @@ export const getPackageDependencies = async (fullName: string) => {
 }
 
 export const getListOfDependentPackages = async (fullName: string) => {
-  const packageData = await fetch(`https://cdn.jsdelivr.net/gh/${fullName}@latest/package.json`, { next: { revalidate: CACHE_REVALIDATE_TS }, });
+  const packageData = await fetch(`https://cdn.jsdelivr.net/gh/${fullName}@latest/package.json`, { next: { revalidate: CACHE_REVALIDATE_TS }, }).catch(() => null);
+  if (!packageData) return [];
+
   const packageName = await packageData.json().then((data) => data.name).catch(() => null);
 
   if (!packageName) return [];
@@ -69,7 +71,7 @@ export const getListOfDependentPackages = async (fullName: string) => {
     next: { revalidate: CACHE_REVALIDATE_TS },
   });
 
-  const dependentRepository = await dependentRepositoryData.json().then((data) => data?.packages?.map((data => ({ name: data.name, description: data.description || null })))).catch((e) => { console.error("error: ", e); return []; });
+  const dependentRepository = await dependentRepositoryData.json().then((data: any) => data?.packages?.map(((data: { name: string, description: string | null }) => ({ name: data.name, description: data.description || null })))).catch((e) => { console.error("error: ", e); return []; });
 
   if (!dependentRepository) return [];
 
@@ -77,7 +79,17 @@ export const getListOfDependentPackages = async (fullName: string) => {
 
   const res = await Promise.all(getters);
 
-  return res;
+  return res.filter((data) => {
+    if (data && data.name) {
+      const name = data.name.split('/').filter((name: string) => name);
+
+      if (name.length === 2 && name[0] !== 'packages') {
+        return true
+      }
+    }
+
+    return false;
+  });
 }
 
 export const getRepoFullNameByPackageName = async (packageName: string) => {
@@ -85,6 +97,7 @@ export const getRepoFullNameByPackageName = async (packageName: string) => {
     const packageDataResponse = await fetch(`https://cdn.jsdelivr.net/npm/${packageName}/package.json`, {
       next: { revalidate: CACHE_REVALIDATE_TS },
     });
+
     const packageData = await packageDataResponse.json();
 
     if (typeof packageData.repository === "string" && !packageData.repository.includes("packages/")) {
@@ -125,7 +138,7 @@ export const transformUrlToRepoFullName = (url: string) => {
     nameWithoutProtocol = url.replace('git+git@github.com:', '')
   } else if (url.startsWith("git@")) {
     nameWithoutProtocol = "";
-    } else {
+  } else {
     const linkOrVersionSplit = url.split("/");
     nameWithoutProtocol = linkOrVersionSplit.slice(-2).join('/')
   }
