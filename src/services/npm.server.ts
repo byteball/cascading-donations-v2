@@ -79,9 +79,9 @@ export const getListOfDependentPackages = async (fullName: string) => {
 
   return res.filter((data) => {
     if (data && data.name) {
-      const name = data.name.split('/').filter((name: string) => name);
+      const partsOfName = data.name.split('/').filter((name: string) => name);
 
-      if (name.length === 2 && name[0] !== 'packages') {
+      if (partsOfName.length === 2 && partsOfName[0] !== 'packages') {
         return true
       }
     }
