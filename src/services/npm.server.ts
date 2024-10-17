@@ -57,7 +57,9 @@ export const getPackageDependencies = async (fullName: string) => {
 }
 
 export const getListOfDependentPackages = async (fullName: string) => {
-  const packageData = await fetch(`https://cdn.jsdelivr.net/gh/${fullName}@latest/package.json`, { next: { revalidate: CACHE_REVALIDATE_TS }, });
+  const packageData = await fetch(`https://cdn.jsdelivr.net/gh/${fullName}@latest/package.json`, { next: { revalidate: CACHE_REVALIDATE_TS }, }).catch(() => null);
+  if (!packageData) return [];
+
   const packageName = await packageData.json().then((data) => data.name).catch(() => null);
 
   if (!packageName) return [];
@@ -69,7 +71,7 @@ export const getListOfDependentPackages = async (fullName: string) => {
     next: { revalidate: CACHE_REVALIDATE_TS },
   });
 
-  const dependentRepository = await dependentRepositoryData.json().then((data) => data?.packages?.map((data => ({ name: data.name, description: data.description || null })))).catch((e) => { console.error("error: ", e); return []; });
+  const dependentRepository = await dependentRepositoryData.json().then((data: any) => data?.packages?.map(((data: { name: string, description: string | null }) => ({ name: data.name, description: data.description || null })))).catch((e) => { console.error("error: ", e); return []; });
 
   if (!dependentRepository) return [];
 
@@ -82,6 +84,7 @@ export const getListOfDependentPackages = async (fullName: string) => {
       const partsOfName = data.name.split('/').filter((name: string) => name);
 
       if (partsOfName.length === 2 && partsOfName[0] !== 'packages') {
+
         return true
       }
     }
