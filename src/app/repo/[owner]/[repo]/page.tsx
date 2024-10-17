@@ -1,6 +1,9 @@
+// Opt out of caching for all data requests in the route segment
+export const dynamic = 'force-dynamic';
+
 import { redirect } from 'next/navigation';
 import { Metadata } from 'next';
-import dynamic from 'next/dynamic';
+import dynamicLoader from 'next/dynamic';
 
 import { RecentEvents, SubTitle, Title } from "@/components"
 
@@ -16,12 +19,12 @@ import { ListOfDependenciesLoading } from '@/components/ListOfDependencies/ListO
 import { ListOfDependentsLoading } from '@/components/ListOfDependents/ListOfDependentsLoading';
 import { getMetaInformation } from '@/services/github.server';
 
-const ListOfDependencies = dynamic(() => import("@/components/ListOfDependencies/ListOfDependencies"), {
+const ListOfDependencies = dynamicLoader(() => import("@/components/ListOfDependencies/ListOfDependencies"), {
   ssr: true,
   loading: () => <ListOfDependenciesLoading />,
 });
 
-const ListOfDependents = dynamic(() => import("@/components/ListOfDependents/ListOfDependents"), {
+const ListOfDependents = dynamicLoader(() => import("@/components/ListOfDependents/ListOfDependents"), {
   ssr: true,
   loading: () => <ListOfDependentsLoading />,
 });
