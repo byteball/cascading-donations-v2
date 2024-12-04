@@ -9,8 +9,8 @@ import { getAvatarUrl, truncate } from "@/utils";
 
 import { SettingsButton } from "./SettingsButton";
 import { VerificationIcon } from "@/components/VerificationIcon/VerificationIcon";
-import { ArrowTopRightOnSquareIcon, LinkIcon } from "@heroicons/react/24/outline";
 import { GithubLogoIcon } from "@/components/Icons/GithubLogo";
+import appConfig from "@/appConfig";
 
 interface IMetaProps {
   owner: string;
@@ -29,6 +29,8 @@ export const Meta: FC<IMetaProps> = async ({ owner, repo }) => {
 
   if (!metaData) return notFound();
 
+  const disabled = appConfig.DISABLED_REPOS.includes(`${owner}/${repo}`);
+
   return <>
     <div className="flex flex-col md:flex-row justify-between  md:items-center">
 
@@ -43,10 +45,10 @@ export const Meta: FC<IMetaProps> = async ({ owner, repo }) => {
 
         <SettingsButton owner={owner} repo={repo} />
 
-        <DonateModal
+        {!disabled ? <DonateModal
           owner={owner}
           repo={repo}
-        />
+        /> : <div className="p-4 text-gray-900 border rounded-xl border-gray-900">This repository doesn't receive donations</div>}
       </div>
     </div>
 
