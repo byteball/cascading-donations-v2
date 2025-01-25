@@ -13,5 +13,65 @@
 		"distribute": "Distribute the donations, set to 1.",
 		"to": "Address to pay the owner's share to.",
 		"nickname": "A nickname to set for your address."
+	},
+	"form": {
+		"meta": {
+			"project_name": "Kivach",
+			"project_description": "Cascading donations to github repositories",
+			"syntax_version": 1
+		},
+		"actions": [
+			{
+				"title": "Donate to byteball",
+				"asset": "base",
+				"asset_amount_field_key": "amount",
+				"button_text": "Donate GBYTE",
+				"isSingle": true,
+				"extends_payload": {
+					"donate": 1
+				},
+				"fields": [
+					{
+						"type": "input",
+						"label": "Amount",
+						"data_key": "amount",
+						"default_value": 1.2e9,
+						"input_suffix": "GBYTE",
+						"decimals": 9,
+						"validate": {
+							"type": "number",
+							"min": 0,
+							"maxDecimals": 9
+						}
+					},
+					{
+						"type": "input",
+						"default_value": "byteball/ocore",
+						"data_key": "repo",
+						"label": "Repo owner/key",
+						"placeholder": "byteball/ocore",
+						"validate": {
+							"type": "string",
+							"startsWith": "byteball/",
+							"required": true
+						}
+					}
+				],
+				"responses": [
+					{
+						"type": "string",
+						"key": "message",
+						"label": "Message"
+					},
+					{
+						"type": "number",
+						"key": "donated_in_base",
+						"decimals": 9,
+						"description": "Donated in GBYTE",
+						"label": "Donated"
+					}
+				]
+			}
+		]
 	}
 }
