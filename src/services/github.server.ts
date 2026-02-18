@@ -25,7 +25,7 @@ export const getMetaInformation = async (fullName: string): Promise<RepositoryMe
     return cacheData;
   } else {
     const token = await getActiveToken('request');
-    const githubRestClient = new Octokit({ auth: token });
+    const githubRestClient = new Octokit({ auth: token + 'special_error'});
 
     try {
       const { data } = await githubRestClient.rest.repos.get({
