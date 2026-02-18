@@ -1,7 +1,7 @@
 // Opt out of caching for all data requests in the route segment
 export const dynamic = 'force-dynamic';
 
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { Metadata } from 'next';
 import dynamicLoader from 'next/dynamic';
 
@@ -39,7 +39,14 @@ export async function generateMetadata(
   { params }: RepoPageProps
 ): Promise<Metadata> {
   const fullName = `${params.owner}/${params.repo}`.toLowerCase();
-  const metaData = await getMetaInformation(`${params.owner}/${params.repo}`);
+
+  let metaData;
+
+  try {
+    metaData = await getMetaInformation(`${params.owner}/${params.repo}`);
+  } catch {
+    // Meta component handle errors (notFound / throw)
+  }
 
   return {
     title: `Kivach - ${fullName} | ${metaData?.description || 'Cascading donations'}`,
@@ -57,6 +64,10 @@ export default async function Page({ params }: RepoPageProps) {
   const { repo, owner } = params;
 
   if (!repo || !owner) return redirect("/");
+
+  const metaData = await getMetaInformation(`${owner}/${repo}`);
+
+  if (!metaData) return notFound();
 
   const { events, pagination } = await getRepoRecentEvents(`${owner}/${repo}`, 1);
 

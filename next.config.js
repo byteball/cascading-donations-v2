@@ -10,7 +10,6 @@ module.exports = async (phase, { defaultConfig }) => {
     },
     experimental: {
       instrumentationHook: true,
-      serverActions: true,
     },
     typescript: {
       ignoreBuildErrors: true,

@@ -1,5 +1,3 @@
-"use server";
-
 interface IData {
   data: Map<string, PopularRepository>,
   ts: number;

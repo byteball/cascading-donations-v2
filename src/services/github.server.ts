@@ -11,23 +11,22 @@ import { getActiveToken } from "@/utils/getActiveToken";
 const META_DATA_EXPIRATION = 1000 * 60 * 60 * 24; // 1 day
 
 
-export const getMetaInformation = async (fullName: string) => {
+export const getMetaInformation = async (fullName: string): Promise<RepositoryMeta | null> => {
   const cache = getRepositoryMetaCache();
   const cacheData = cache.get(fullName);
   const [owner, repo] = fullName.split("/");
 
   if (!owner || !repo) {
-    throw new Error("Invalid repository name");
+    return null;
   }
 
-  if (cacheData && (cacheData.last_update + META_DATA_EXPIRATION >= Date.now()) ) {
+  if (cacheData && (cacheData.last_update + META_DATA_EXPIRATION >= Date.now())) {
     console.log('meta: we use cache')
     return cacheData;
   } else {
-
     const token = await getActiveToken('request');
     const githubRestClient = new Octokit({ auth: token });
-    
+
     try {
       const { data } = await githubRestClient.rest.repos.get({
         owner,
@@ -52,8 +51,11 @@ export const getMetaInformation = async (fullName: string) => {
       cache.set(fullName, newRepoMetaData);
 
       return newRepoMetaData;
-    } catch {
-      // throw new Error("Error: Repository not found");
+    } catch (error: any) {
+      if (error?.status === 404) {
+        return null;
+      }
+      throw error;
     }
 
   }

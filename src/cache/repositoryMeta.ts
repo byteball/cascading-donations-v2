@@ -1,5 +1,3 @@
-"use server";
-
 export interface RepositoryMeta {
   name: string;
   owner: string;
