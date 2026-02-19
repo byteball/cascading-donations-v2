@@ -1,5 +1,3 @@
-"use server";
-
 import { ITokenMeta } from "@/store/slices/tokensSlice";
 
 const tokensMap = {

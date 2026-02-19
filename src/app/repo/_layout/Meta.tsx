@@ -21,12 +21,7 @@ export const Meta: FC<IMetaProps> = async ({ owner, repo }) => {
   let metaData;
   const bannerExists = await checkBannerExists(`${owner}/${repo}`);
 
-  try {
-    metaData = await getMetaInformation(`${owner}/${repo}`);
-  } catch {
-    return notFound();
-  }
-
+  metaData = await getMetaInformation(`${owner}/${repo}`);
   if (!metaData) return notFound();
 
   const disabled = appConfig.DISABLED_REPOS.includes(`${owner}/${repo}`);

@@ -1,5 +1,3 @@
-"use server";
-
 export interface IExistsBanner {
   exists: boolean;
   ts: number;

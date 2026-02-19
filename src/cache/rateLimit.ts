@@ -1,5 +1,3 @@
-"use server";
-
 import appConfig from "@/appConfig";
 
 interface IToken {
