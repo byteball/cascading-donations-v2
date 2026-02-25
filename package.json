@@ -21,6 +21,7 @@
     "@types/react-dom": "18.2.7",
     "antd": "^5.12.2",
     "autoprefixer": "10.4.16",
+    "better-sqlite3": "^12.6.2",
     "bufferutil": "^4.0.7",
     "classnames": "^2.3.2",
     "counterstake-sdk": "^0.1.9",
@@ -49,6 +50,7 @@
     "utf-8-validate": "^5.0.10"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "@types/lodash": "^4.14.199",
     "@types/react-copy-to-clipboard": "^5.0.6",
     "encoding": "^0.1.13"
