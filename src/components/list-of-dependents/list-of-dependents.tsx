@@ -2,7 +2,7 @@
 
 import { FC } from "react";
 
-import { getListOfDependentPackages } from "@/services/npm.server";
+import { getListOfDependentPackages } from "@/services/github.server";
 import { Title } from "..";
 import { DependencyItem } from "../DependencyItem/DependencyItem";
 

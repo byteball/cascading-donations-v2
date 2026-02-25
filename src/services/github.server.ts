@@ -100,6 +100,69 @@ export const getContributors = async (fullName: string) => {
   }
 }
 
+const DEPENDENTS_REVALIDATE_TS = 60 * 60 * 24 * 7 * 4 * 3; // 3 months
+
+let lastGitHubFetchTs = 0;
+const MIN_FETCH_INTERVAL = 1000; // 1 second between requests
+
+export async function getDependentsFromGitHub(fullName: string): Promise<{ name: string; description: string }[]> {
+  const now = Date.now();
+  const timeSinceLastFetch = now - lastGitHubFetchTs;
+
+  if (timeSinceLastFetch < MIN_FETCH_INTERVAL) {
+    await new Promise(resolve => setTimeout(resolve, MIN_FETCH_INTERVAL - timeSinceLastFetch));
+  }
+
+  lastGitHubFetchTs = Date.now();
+
+  const res = await fetch(
+    `https://github.com/${fullName}/network/dependents`,
+    { next: { revalidate: DEPENDENTS_REVALIDATE_TS } }
+  );
+
+  if (!res.ok) {
+    console.error(`getDependentsFromGitHub: HTTP ${res.status} for ${fullName}`);
+    return [];
+  }
+
+  const html = await res.text();
+
+  if (html.includes('captcha') || html.includes('cf-challenge')) {
+    console.error(`getDependentsFromGitHub: captcha/challenge detected for ${fullName}`);
+    return [];
+  }
+
+  if (!html.includes('Box-row')) {
+    console.error(`getDependentsFromGitHub: unexpected HTML structure for ${fullName}, no Box-row found`);
+    return [];
+  }
+
+  const results: { name: string; description: string }[] = [];
+  const regex = /class="Box-row[\s\S]*?<a[^>]*href="\/([^"]+)"[^>]*>([^<]+)<\/a>\s*\/\s*\n\s*<a[^>]*class="text-bold"[^>]*href="\/([^"]+)"[^>]*>([^<]+)<\/a>/g;
+
+  let match;
+  while ((match = regex.exec(html)) !== null && results.length < 20) {
+    const owner = match[1];
+    const repo = match[4];
+    results.push({ name: `${owner}/${repo}`, description: "" });
+  }
+
+  console.error(`getDependentsFromGitHub: found ${results.length} dependents for ${fullName}`);
+  return results;
+}
+
+export const getListOfDependentPackages = async (fullName: string) => {
+  const dependents = await getDependentsFromGitHub(fullName).catch((err: unknown) => {
+    console.error('error fetching dependents: ', err);
+    return [];
+  });
+
+  return dependents.filter((d) => {
+    const parts = d.name.split('/').filter(Boolean);
+    return parts.length === 2 && parts[0] !== 'packages';
+  });
+}
+
 export const checkBannerExists = async (fullNameProp: string): Promise<boolean> => {
   const fullName = fullNameProp.toLowerCase();
 
