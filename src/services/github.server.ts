@@ -101,19 +101,11 @@ export const getContributors = async (fullName: string) => {
 }
 
 const DEPENDENTS_REVALIDATE_TS = 60 * 60 * 24 * 7 * 4 * 3; // 3 months
-const DEPENDENTS_CACHE_TTL = 1000 * 60 * 60 * 24 * 1; // 1 day
-const dependentsCache = new Map<string, { data: { name: string; description: string }[]; ts: number }>();
 
 let lastGitHubFetchTs = 0;
 const MIN_FETCH_INTERVAL = 1000; // 1 second between requests
 
 export async function getDependentsFromGitHub(fullName: string): Promise<{ name: string; description: string }[]> {
-  const cached = dependentsCache.get(fullName);
-
-  if (cached && Date.now() - cached.ts < DEPENDENTS_CACHE_TTL) {
-    return cached.data;
-  }
-
   const now = Date.now();
   const timeSinceLastFetch = now - lastGitHubFetchTs;
 
@@ -156,7 +148,6 @@ export async function getDependentsFromGitHub(fullName: string): Promise<{ name:
   }
 
   console.error(`getDependentsFromGitHub: found ${results.length} dependents for ${fullName}`);
-  dependentsCache.set(fullName, { data: results, ts: Date.now() });
   return results;
 }
 
