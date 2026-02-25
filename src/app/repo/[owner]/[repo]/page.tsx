@@ -16,7 +16,7 @@ import appConfig from '@/appConfig';
 import { getRepoRecentEvents } from '@/services/backend.server';
 import { Shares } from '../../_layout/Shares';
 import { ListOfDependenciesLoading } from '@/components/ListOfDependencies/ListOfDependenciesLoading';
-import { ListOfDependentsLoading } from '@/components/ListOfDependents/ListOfDependentsLoading';
+import { ListOfDependentsLoading } from '@/components/list-of-dependents/list-of-dependents-loading';
 import { getMetaInformation } from '@/services/github.server';
 
 const ListOfDependencies = dynamicLoader(() => import("@/components/ListOfDependencies/ListOfDependencies"), {
@@ -24,7 +24,7 @@ const ListOfDependencies = dynamicLoader(() => import("@/components/ListOfDepend
   loading: () => <ListOfDependenciesLoading />,
 });
 
-const ListOfDependents = dynamicLoader(() => import("@/components/ListOfDependents/ListOfDependents"), {
+const ListOfDependents = dynamicLoader(() => import("@/components/list-of-dependents/list-of-dependents"), {
   ssr: true,
   loading: () => <ListOfDependentsLoading />,
 });

@@ -19,7 +19,6 @@ export const getPackageDependencies = async (fullName: string) => {
       const packageDependencies: packageDependencies = await packageData.json().then((data) => ({ ...(data.dependencies || {}), ...(data.devDependencies || {}) })).catch(() => ({}));
 
       Object.entries(packageDependencies).slice(0, 50).forEach(([packageName, linkOrVersion]) => {
-
         if (!packageName.startsWith("packages/") && !linkOrVersion?.startsWith("link:")) {
           if (linkOrVersion.includes("https://github.com") && linkOrVersion.endsWith('.git')) {
             const repoName = transformUrlToRepoFullName(linkOrVersion);
@@ -37,8 +36,8 @@ export const getPackageDependencies = async (fullName: string) => {
             }));
           } else {
             getters.push(getRepoFullNameByPackageName(packageName).then((data) => {
-              if (data && !data.name?.startsWith('packages/')) {
-                result.push({ repo: data.name || "", description: data.description });
+              if (data && typeof data.name === 'string' && !data.name.startsWith('packages/')) {
+                result.push({ repo: data.name, description: data.description });
               }
             }));
           }
@@ -56,42 +55,6 @@ export const getPackageDependencies = async (fullName: string) => {
   return result;
 }
 
-export const getListOfDependentPackages = async (fullName: string) => {
-  const packageData = await fetch(`https://cdn.jsdelivr.net/gh/${fullName}@latest/package.json`, { next: { revalidate: CACHE_REVALIDATE_TS }, }).catch(() => null);
-  if (!packageData) return [];
-
-  const packageName = await packageData.json().then((data) => data.name).catch(() => null);
-
-  if (!packageName) return [];
-
-  const dependentRepositoryData = await fetch(`https://www.npmjs.com/browse/depended/${packageName}`, {
-    headers: {
-      "X-Spiferack": "1"
-    },
-    next: { revalidate: CACHE_REVALIDATE_TS },
-  });
-
-  const dependentRepository = await dependentRepositoryData.json().then((data: any) => data?.packages?.map(((data: { name: string, description: string | null }) => ({ name: data.name, description: data.description || null })))).catch((e) => { console.error("error: ", e); return []; });
-
-  if (!dependentRepository) return [];
-
-  const getters = dependentRepository.map((data: any) => getRepoFullNameByPackageName(data.name).catch(() => null));
-
-  const res = await Promise.all(getters);
-
-  return res.filter((data) => {
-    if (data && data.name) {
-      const partsOfName = data.name.split('/').filter((name: string) => name);
-
-      if (partsOfName.length === 2 && partsOfName[0] !== 'packages') {
-
-        return true
-      }
-    }
-
-    return false;
-  });
-}
 
 export const getRepoFullNameByPackageName = async (packageName: string) => {
   try {
