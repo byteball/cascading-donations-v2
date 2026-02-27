@@ -1,136 +1,127 @@
-"use server";
-
-interface packageDependencies {
+interface IDependency {
   repo?: string;
   description?: string;
 }
 
 const CACHE_REVALIDATE_TS = 60 * 60 * 24 * 7 * 4 * 3; // 3 months
 
-export const getPackageDependencies = async (fullName: string) => {
-  const result: packageDependencies[] = [];
-  const getters: Promise<void>[] = [];
+const fetchJSON = async (url: string) => {
+  const response = await fetch(url, { next: { revalidate: CACHE_REVALIDATE_TS } });
 
-  try {
-    if (fullName) {
-      const packageData = await fetch(`https://cdn.jsdelivr.net/gh/${fullName}@latest/package.json`, {
-        next: { revalidate: CACHE_REVALIDATE_TS },
-      });
-      const packageDependencies: packageDependencies = await packageData.json().then((data) => ({ ...(data.dependencies || {}), ...(data.devDependencies || {}) })).catch(() => ({}));
-
-      Object.entries(packageDependencies).slice(0, 50).forEach(([packageName, linkOrVersion]) => {
-        if (!packageName.startsWith("packages/") && !linkOrVersion?.startsWith("link:")) {
-          if (linkOrVersion.includes("https://github.com") && linkOrVersion.endsWith('.git')) {
-            const repoName = transformUrlToRepoFullName(linkOrVersion);
-            // direct link to the github repository // EXAMPLE: https://github.com/byteball/ocore
-            getters.push(getDescriptionFromGithubByFullName(repoName).then((data) => {
-              result.push(({ repo: data.name, description: data.description }))
-            }));
-          } if (linkOrVersion.includes("github:") || linkOrVersion.includes("github.com:")) {
-            getters.push(getDescriptionFromGithubByFullName(linkOrVersion.split(":")[1]).then((data) => {
-              result.push(({ repo: data.name, description: data.description }))
-            }));
-          } if (packageName.startsWith("git@github.com:")) {
-            getters.push(getDescriptionFromGithubByFullName(linkOrVersion.split(":")[1]).then((data) => {
-              result.push(({ repo: data.name, description: data.description }))
-            }));
-          } else {
-            getters.push(getRepoFullNameByPackageName(packageName).then((data) => {
-              if (data && typeof data.name === 'string' && !data.name.startsWith('packages/')) {
-                result.push({ repo: data.name, description: data.description });
-              }
-            }));
-          }
-        }
-      });
-
-      await Promise.all(getters);
-    } else {
-      throw new Error('Invalid repo name');
-    }
-  } catch (e) {
-    console.error('error: getPackageDependencies', e)
+  if (!response.ok) {
+    throw new Error(`fetch ${url} failed with status ${response.status}`);
   }
 
-  return result;
-}
+  return response.json();
+};
 
+export const getPackageDependencies = async (fullName: string): Promise<IDependency[]> => {
+  if (!fullName) {
+    console.error("getPackageDependencies: invalid repo name");
+    return [];
+  }
 
-export const getRepoFullNameByPackageName = async (packageName: string) => {
   try {
-    const packageDataResponse = await fetch(`https://cdn.jsdelivr.net/npm/${packageName}/package.json`, {
-      next: { revalidate: CACHE_REVALIDATE_TS },
-    });
+    const data = await fetchJSON(`https://cdn.jsdelivr.net/gh/${fullName}@latest/package.json`);
+    const deps: Record<string, string> = { ...(data.dependencies || {}), ...(data.devDependencies || {}) };
+    const entries = Object.entries(deps).slice(0, 50);
 
-    const packageData = await packageDataResponse.json();
+    console.error(`getPackageDependencies: found ${entries.length} dependencies for ${fullName}`);
 
-    if (typeof packageData.repository === "string" && !packageData.repository.includes("packages/")) {
-      if (packageData.repository.startsWith("https://github.com/")) {
-        return ({ name: transformUrlToRepoFullName(packageData.repository), description: packageData.description })
-      } else if (packageData.repository.includes("github")) {
-        return ({ name: transformUrlToRepoFullName(packageData.repository), description: packageData.description })
-      } else {
-        return null;
-      }
+    const results = await Promise.all(
+      entries.map(([packageName, version]) => resolvePackage(packageName, version))
+    );
 
-    } else if (typeof packageData.repository === "object" && packageData.repository.url) {
+    const filtered = results.filter((dep): dep is IDependency => dep !== null);
 
-      if (packageData.repository.url.includes("github")) {
-        return ({ name: transformUrlToRepoFullName(packageData.repository.url), description: packageData.description })
-      }
+    console.error(`getPackageDependencies: resolved ${filtered.length}/${entries.length} dependencies for ${fullName}`);
 
+    return filtered;
+  } catch (e) {
+    console.error("getPackageDependencies: error", e);
+    return [];
+  }
+};
+
+const resolvePackage = async (packageName: string, version: string): Promise<IDependency | null> => {
+  try {
+    if (packageName.startsWith("packages/") || version?.startsWith("link:")) {
       return null;
     }
 
-  } catch {
+    if (version.includes("https://github.com") && version.endsWith(".git")) {
+      // direct github URL, e.g. https://github.com/byteball/ocore.git
+      const repoName = transformUrlToRepoFullName(version);
+      return await getDescriptionFromGithubByFullName(repoName);
+    } else if (version.includes("github:") || version.includes("github.com:")) {
+      // github: prefix, e.g. github:user/repo
+      return await getDescriptionFromGithubByFullName(version.split(":")[1]);
+    } else if (packageName.startsWith("git@github.com:")) {
+      // git SSH URL as package name
+      return await getDescriptionFromGithubByFullName(version.split(":")[1]);
+    } else {
+      // regular npm package — resolve github repo via npm registry
+      return await getRepoFullNameByPackageName(packageName);
+    }
+  } catch (e) {
+    console.error(`resolvePackage: error for "${packageName}"`, e);
     return null;
   }
+};
 
-}
+export const getRepoFullNameByPackageName = async (packageName: string): Promise<IDependency | null> => {
+  try {
+    const data = await fetchJSON(`https://cdn.jsdelivr.net/npm/${packageName}/package.json`);
+
+    const repoUrl = typeof data.repository === "string"
+      ? data.repository
+      : data.repository?.url;
+
+    if (!repoUrl || !repoUrl.includes("github") || repoUrl.includes("packages/")) {
+      return null;
+    }
+
+    const name = transformUrlToRepoFullName(repoUrl);
+
+    if (!name || name.startsWith("packages/")) {
+      return null;
+    }
+
+    return { repo: name, description: data.description || "" };
+  } catch (e) {
+    console.error(`getRepoFullNameByPackageName: error for "${packageName}"`, e);
+    return null;
+  }
+};
 
 export const transformUrlToRepoFullName = (url: string) => {
-  let nameWithoutProtocol = '';
-  if (url.includes("ssh://")) {
-    nameWithoutProtocol = "";
+  let nameWithoutProtocol = "";
+
+  if (url.includes("ssh://") || (url.startsWith("git@") && !url.startsWith("git@github.com:"))) {
+    return "";
   } else if (url.startsWith("git@github.com:")) {
-    nameWithoutProtocol = url.replace('git@github.com:', '');
+    nameWithoutProtocol = url.replace("git@github.com:", "");
   } else if (url.startsWith("git://github.com/")) {
-    nameWithoutProtocol = url.replace("git://github.com/", '')
+    nameWithoutProtocol = url.replace("git://github.com/", "");
   } else if (url.startsWith("github:")) {
-    nameWithoutProtocol = url.replace('github:', '')
+    nameWithoutProtocol = url.replace("github:", "");
   } else if (url.startsWith("git+git@github.com:")) {
-    nameWithoutProtocol = url.replace('git+git@github.com:', '')
-  } else if (url.startsWith("git@")) {
-    nameWithoutProtocol = "";
+    nameWithoutProtocol = url.replace("git+git@github.com:", "");
   } else {
-    const linkOrVersionSplit = url.split("/");
-    nameWithoutProtocol = linkOrVersionSplit.slice(-2).join('/')
+    const parts = url.split("/");
+    nameWithoutProtocol = parts.slice(-2).join("/");
   }
 
-  return nameWithoutProtocol.replace('.git', '');
-}
+  return nameWithoutProtocol.replace(".git", "");
+};
 
-
-
-export const getDescriptionFromGithubByFullName = async (fullName: string) => {
-
-  if (!fullName) return ({
-    name: fullName,
-    description: ""
-  });
+export const getDescriptionFromGithubByFullName = async (fullName: string): Promise<IDependency> => {
+  if (!fullName) return { repo: fullName, description: "" };
 
   try {
-    const packageDataResponse = await fetch(`https://cdn.jsdelivr.net/gh/${fullName}@latest/package.json`, { next: { revalidate: CACHE_REVALIDATE_TS }, });
-    const packageData = await packageDataResponse.json();
-
-    return ({
-      name: fullName,
-      description: packageData.description
-    })
+    const data = await fetchJSON(`https://cdn.jsdelivr.net/gh/${fullName}@latest/package.json`);
+    return { repo: fullName, description: data.description };
   } catch {
-    return ({
-      name: fullName,
-      description: ""
-    });
+    return { repo: fullName, description: "" };
   }
-}
+};
