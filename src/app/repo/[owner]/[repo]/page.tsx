@@ -17,6 +17,7 @@ import { getRepoRecentEvents } from '@/services/backend.server';
 import { Shares } from '../../_layout/Shares';
 import { ListOfDependenciesLoading } from '@/components/ListOfDependencies/ListOfDependenciesLoading';
 import { ListOfDependentsLoading } from '@/components/list-of-dependents/list-of-dependents-loading';
+import { AISummaryLoading } from '@/components/AISummary/AISummaryLoading';
 import { getMetaInformation } from '@/services/github.server';
 
 const ListOfDependencies = dynamicLoader(() => import("@/components/ListOfDependencies/ListOfDependencies"), {
@@ -27,6 +28,11 @@ const ListOfDependencies = dynamicLoader(() => import("@/components/ListOfDepend
 const ListOfDependents = dynamicLoader(() => import("@/components/list-of-dependents/list-of-dependents"), {
   ssr: true,
   loading: () => <ListOfDependentsLoading />,
+});
+
+const AISummary = dynamicLoader(() => import("@/components/AISummary/AISummary"), {
+  ssr: true,
+  loading: () => <AISummaryLoading />,
 });
 
 type RepoPageProps = {
@@ -74,6 +80,8 @@ export default async function Page({ params }: RepoPageProps) {
   return <div className="mt-12">
 
     <Meta owner={owner} repo={repo} />
+
+    <AISummary owner={owner} repo={repo} />
 
     <StatisticGrid owner={owner} repo={repo} />
 
