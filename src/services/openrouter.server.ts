@@ -16,6 +16,9 @@ interface OpenRouterResponse {
   choices?: { message?: { content?: string } }[];
 }
 
+const MAX_TOKENS_CONTENT = 10_000;
+const MAX_README_LENGTH = MAX_TOKENS_CONTENT * 4; // account for tokenization overhead
+
 export async function generateSummary(
   repoFullName: string,
   description: string | null,
@@ -28,11 +31,11 @@ export async function generateSummary(
     return null;
   }
 
-  const truncatedReadme = readmeContent.slice(0, 8000);
+  const truncatedReadme = readmeContent.slice(0, MAX_README_LENGTH);
 
   const prompt = `You are given information about a GitHub repository. Write a concise 2-3 sentence summary of what this project does and who it's for.
 
-Repository: ${repoFullName}
+Repository: ${repoFullName} (https://github.com/${repoFullName})
 ${description ? `Description: ${description}` : ""}
 
 README:
