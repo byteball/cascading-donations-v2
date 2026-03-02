@@ -6,9 +6,12 @@ interface DependencyItemProps {
   description?: string;
 }
 
-export const DependencyItem: FC<DependencyItemProps> = ({ repo, description }) => (<div className="flex relative z-20 items-center space-x-3 rounded-lg">
+export const DependencyItem: FC<DependencyItemProps> = ({ repo, description }) => {
+  if (typeof repo !== "string" || !repo.includes("/")) return null;
+
+  return (<div className="flex relative z-20 items-center space-x-3 rounded-lg">
   <div className="flex-shrink-0">
-    <img className="h-14 w-14 rounded-full" src={`https://avatars.githubusercontent.com/${repo!.split("/")[0]}`} alt={`Account's avatar`} />
+    <img className="h-14 w-14 rounded-full" src={`https://avatars.githubusercontent.com/${repo.split("/")[0]}`} alt={`Account's avatar`} />
   </div>
 
   <div className="min-w-0 flex-1">
@@ -21,3 +24,4 @@ export const DependencyItem: FC<DependencyItemProps> = ({ repo, description }) =
     </div> : null}
   </div>
 </div>)
+}

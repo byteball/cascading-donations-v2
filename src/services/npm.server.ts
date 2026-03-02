@@ -22,15 +22,14 @@ export const getPackageDependencies = async (fullName: string) => {
         if (!packageName.startsWith("packages/") && !linkOrVersion?.startsWith("link:")) {
           if (linkOrVersion.includes("https://github.com") && linkOrVersion.endsWith('.git')) {
             const repoName = transformUrlToRepoFullName(linkOrVersion);
-            // direct link to the github repository // EXAMPLE: https://github.com/byteball/ocore
             getters.push(getDescriptionFromGithubByFullName(repoName).then((data) => {
               result.push(({ repo: data.name, description: data.description }))
             }));
-          } if (linkOrVersion.includes("github:") || linkOrVersion.includes("github.com:")) {
+          } else if (linkOrVersion.includes("github:") || linkOrVersion.includes("github.com:")) {
             getters.push(getDescriptionFromGithubByFullName(linkOrVersion.split(":")[1]).then((data) => {
               result.push(({ repo: data.name, description: data.description }))
             }));
-          } if (packageName.startsWith("git@github.com:")) {
+          } else if (packageName.startsWith("git@github.com:")) {
             getters.push(getDescriptionFromGithubByFullName(linkOrVersion.split(":")[1]).then((data) => {
               result.push(({ repo: data.name, description: data.description }))
             }));
@@ -56,7 +55,7 @@ export const getPackageDependencies = async (fullName: string) => {
 }
 
 
-export const getRepoFullNameByPackageName = async (packageName: string) => {
+const getRepoFullNameByPackageName = async (packageName: string) => {
   try {
     const packageDataResponse = await fetch(`https://cdn.jsdelivr.net/npm/${packageName}/package.json`, {
       next: { revalidate: CACHE_REVALIDATE_TS },
@@ -88,7 +87,7 @@ export const getRepoFullNameByPackageName = async (packageName: string) => {
 
 }
 
-export const transformUrlToRepoFullName = (url: string) => {
+const transformUrlToRepoFullName = (url: string) => {
   let nameWithoutProtocol = '';
   if (url.includes("ssh://")) {
     nameWithoutProtocol = "";
@@ -112,7 +111,7 @@ export const transformUrlToRepoFullName = (url: string) => {
 
 
 
-export const getDescriptionFromGithubByFullName = async (fullName: string) => {
+const getDescriptionFromGithubByFullName = async (fullName: string) => {
 
   if (!fullName) return ({
     name: fullName,
