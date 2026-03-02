@@ -4,7 +4,7 @@ import appConfig from "@/appConfig";
 
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
-const MODELS = [
+const models = [
   "openai/gpt-oss-120b:free",
   "meta-llama/llama-3.3-70b-instruct:free",
   "google/gemma-3-27b-it:free",
@@ -24,12 +24,12 @@ const MAX_TOKENS_CONTENT = 10_000;
 const MAX_README_LENGTH = MAX_TOKENS_CONTENT * 4; // account for tokenization overhead
 
 function getOrderedModels(): string[] {
-  if (!lastSuccessfulModel || !MODELS.includes(lastSuccessfulModel)) {
-    return MODELS;
+  if (!lastSuccessfulModel || !models.includes(lastSuccessfulModel)) {
+    return models;
   }
 
-  const idx = MODELS.indexOf(lastSuccessfulModel);
-  return [lastSuccessfulModel, ...MODELS.slice(0, idx), ...MODELS.slice(idx + 1)];
+  const idx = models.indexOf(lastSuccessfulModel);
+  return [lastSuccessfulModel, ...models.slice(0, idx), ...models.slice(idx + 1)];
 }
 
 export async function generateSummary(
@@ -76,7 +76,9 @@ ${truncatedReadme}`;
       if (!res.ok) {
         const body = await res.text();
         if (res.status === 404) {
-          console.warn(`openrouter: MODEL NOT FOUND — "${model}" may have been removed from OpenRouter. Please update the MODELS list.`);
+          const idx = models.indexOf(model);
+          if (idx !== -1) models.splice(idx, 1);
+          console.warn(`openrouter: MODEL NOT FOUND — "${model}" removed from the list. Remaining: ${models.length}`);
         } else {
           console.error(`openrouter: HTTP ${res.status} for ${model}: ${body}`);
         }
