@@ -50,17 +50,13 @@ const resolvePackage = async (packageName: string, version: string): Promise<IDe
     }
 
     if (version.includes("https://github.com") && version.endsWith(".git")) {
-      // direct github URL, e.g. https://github.com/byteball/ocore.git
       const repoName = transformUrlToRepoFullName(version);
       return await getDescriptionFromGithubByFullName(repoName);
     } else if (version.includes("github:") || version.includes("github.com:")) {
-      // github: prefix, e.g. github:user/repo
       return await getDescriptionFromGithubByFullName(version.split(":")[1]);
     } else if (packageName.startsWith("git@github.com:")) {
-      // git SSH URL as package name
       return await getDescriptionFromGithubByFullName(version.split(":")[1]);
     } else {
-      // regular npm package — resolve github repo via npm registry
       return await getRepoFullNameByPackageName(packageName);
     }
   } catch (e) {
@@ -69,7 +65,7 @@ const resolvePackage = async (packageName: string, version: string): Promise<IDe
   }
 };
 
-export const getRepoFullNameByPackageName = async (packageName: string): Promise<IDependency | null> => {
+const getRepoFullNameByPackageName = async (packageName: string): Promise<IDependency | null> => {
   try {
     const data = await fetchJSON(`https://cdn.jsdelivr.net/npm/${packageName}/package.json`);
 
@@ -94,7 +90,7 @@ export const getRepoFullNameByPackageName = async (packageName: string): Promise
   }
 };
 
-export const transformUrlToRepoFullName = (url: string) => {
+const transformUrlToRepoFullName = (url: string) => {
   let nameWithoutProtocol = "";
 
   if (url.includes("ssh://") || (url.startsWith("git@") && !url.startsWith("git@github.com:"))) {
@@ -115,7 +111,7 @@ export const transformUrlToRepoFullName = (url: string) => {
   return nameWithoutProtocol.replace(".git", "");
 };
 
-export const getDescriptionFromGithubByFullName = async (fullName: string): Promise<IDependency> => {
+const getDescriptionFromGithubByFullName = async (fullName: string): Promise<IDependency> => {
   if (!fullName) return { repo: fullName, description: "" };
 
   try {

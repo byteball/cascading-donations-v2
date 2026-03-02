@@ -1,6 +1,8 @@
 import Database from "better-sqlite3";
 import path from "path";
 
+import { ensureDirectoryExists } from "./ensureDirectoryExists";
+
 const SUMMARY_TTL = 1000 * 60 * 60 * 24 * 180; // ~6 months
 
 const dbPath = path.join(process.cwd(), "data", "ai-summary-cache.db");
@@ -9,6 +11,7 @@ let db: Database.Database | null = null;
 
 function getDb(): Database.Database {
   if (!db) {
+    ensureDirectoryExists(dbPath);
     db = new Database(dbPath);
     db.pragma("journal_mode = WAL");
     db.exec(`

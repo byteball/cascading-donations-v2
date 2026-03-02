@@ -1,5 +1,3 @@
-"use server";
-
 import { FC } from "react";
 
 import { getListOfDependentPackages } from "@/services/github.server";

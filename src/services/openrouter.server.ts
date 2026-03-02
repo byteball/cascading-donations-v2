@@ -4,13 +4,17 @@ import appConfig from "@/appConfig";
 
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
-const MODELS = [
+const models = [
+  "openai/gpt-oss-120b:free",
   "meta-llama/llama-3.3-70b-instruct:free",
-  "mistralai/mistral-small-3.1-24b-instruct:free",
   "google/gemma-3-27b-it:free",
-  "qwen/qwen3-4b:free",
-  "nvidia/nemotron-3-nano-30b-a3b:free",
+  "mistralai/mistral-small-3.1-24b-instruct:free",
+  "upstage/solar-pro-3:free",
+  "arcee-ai/trinity-large-preview:free",
+  "stepfun/step-3.5-flash:free",
 ];
+
+let lastSuccessfulModel: string | null = null;
 
 interface OpenRouterResponse {
   choices?: { message?: { content?: string } }[];
@@ -18,6 +22,15 @@ interface OpenRouterResponse {
 
 const MAX_TOKENS_CONTENT = 10_000;
 const MAX_README_LENGTH = MAX_TOKENS_CONTENT * 4; // account for tokenization overhead
+
+function getOrderedModels(): string[] {
+  if (!lastSuccessfulModel || !models.includes(lastSuccessfulModel)) {
+    return models;
+  }
+
+  const idx = models.indexOf(lastSuccessfulModel);
+  return [lastSuccessfulModel, ...models.toSpliced(idx, 1)];
+}
 
 export async function generateSummary(
   repoFullName: string,
@@ -41,7 +54,9 @@ ${description ? `Description: ${description}` : ""}
 README:
 ${truncatedReadme}`;
 
-  for (const model of MODELS) {
+  const orderedModels = getOrderedModels();
+
+  for (const model of orderedModels) {
     try {
       console.log(`openrouter: trying model ${model}`);
 
@@ -59,7 +74,14 @@ ${truncatedReadme}`;
       });
 
       if (!res.ok) {
-        console.error(`openrouter: HTTP ${res.status} for ${model}: ${await res.text()}`);
+        const body = await res.text();
+        if (res.status === 404) {
+          const idx = models.indexOf(model);
+          if (idx !== -1) models.splice(idx, 1);
+          console.warn(`openrouter: MODEL NOT FOUND — "${model}" removed from the list. Remaining: ${models.length}`);
+        } else {
+          console.error(`openrouter: HTTP ${res.status} for ${model}: ${body}`);
+        }
         continue;
       }
 
@@ -67,6 +89,7 @@ ${truncatedReadme}`;
       const content = data.choices?.[0]?.message?.content?.trim();
 
       if (content) {
+        lastSuccessfulModel = model;
         console.log(`openrouter: success with model ${model}`);
         return content;
       }
