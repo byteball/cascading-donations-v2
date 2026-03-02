@@ -29,7 +29,7 @@ function getOrderedModels(): string[] {
   }
 
   const idx = models.indexOf(lastSuccessfulModel);
-  return [lastSuccessfulModel, ...models.slice(0, idx), ...models.slice(idx + 1)];
+  return [lastSuccessfulModel, ...models.toSpliced(idx, 1)];
 }
 
 export async function generateSummary(
