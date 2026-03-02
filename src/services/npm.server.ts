@@ -8,44 +8,8 @@ const CACHE_REVALIDATE_TS = 60 * 60 * 24 * 7 * 4 * 3; // 3 months
 const fetchJSON = async (url: string) => {
   const response = await fetch(url, { next: { revalidate: CACHE_REVALIDATE_TS } });
 
-  try {
-    if (fullName) {
-      const packageData = await fetch(`https://cdn.jsdelivr.net/gh/${fullName}@latest/package.json`, {
-        next: { revalidate: CACHE_REVALIDATE_TS },
-      });
-      const packageDependencies: packageDependencies = await packageData.json().then((data) => ({ ...(data.dependencies || {}), ...(data.devDependencies || {}) })).catch(() => ({}));
-
-      Object.entries(packageDependencies).slice(0, 50).forEach(([packageName, linkOrVersion]) => {
-        if (!packageName.startsWith("packages/") && !linkOrVersion?.startsWith("link:")) {
-          if (linkOrVersion.includes("https://github.com") && linkOrVersion.endsWith('.git')) {
-            const repoName = transformUrlToRepoFullName(linkOrVersion);
-            getters.push(getDescriptionFromGithubByFullName(repoName).then((data) => {
-              result.push(({ repo: data.name, description: data.description }))
-            }));
-          } else if (linkOrVersion.includes("github:") || linkOrVersion.includes("github.com:")) {
-            getters.push(getDescriptionFromGithubByFullName(linkOrVersion.split(":")[1]).then((data) => {
-              result.push(({ repo: data.name, description: data.description }))
-            }));
-          } else if (packageName.startsWith("git@github.com:")) {
-            getters.push(getDescriptionFromGithubByFullName(linkOrVersion.split(":")[1]).then((data) => {
-              result.push(({ repo: data.name, description: data.description }))
-            }));
-          } else {
-            getters.push(getRepoFullNameByPackageName(packageName).then((data) => {
-              if (data && typeof data.name === 'string' && !data.name.startsWith('packages/')) {
-                result.push({ repo: data.name, description: data.description });
-              }
-            }));
-          }
-        }
-      });
-
-      await Promise.all(getters);
-    } else {
-      throw new Error('Invalid repo name');
-    }
-  } catch (e) {
-    console.error('error: getPackageDependencies', e)
+  if (!response.ok) {
+    throw new Error(`fetch ${url} failed with status ${response.status}`);
   }
 
   return response.json();
@@ -57,7 +21,6 @@ export const getPackageDependencies = async (fullName: string): Promise<IDepende
     return [];
   }
 
-const getRepoFullNameByPackageName = async (packageName: string) => {
   try {
     const data = await fetchJSON(`https://cdn.jsdelivr.net/gh/${fullName}@latest/package.json`);
     const deps: Record<string, string> = { ...(data.dependencies || {}), ...(data.devDependencies || {}) };
@@ -87,17 +50,13 @@ const resolvePackage = async (packageName: string, version: string): Promise<IDe
     }
 
     if (version.includes("https://github.com") && version.endsWith(".git")) {
-      // direct github URL, e.g. https://github.com/byteball/ocore.git
       const repoName = transformUrlToRepoFullName(version);
       return await getDescriptionFromGithubByFullName(repoName);
     } else if (version.includes("github:") || version.includes("github.com:")) {
-      // github: prefix, e.g. github:user/repo
       return await getDescriptionFromGithubByFullName(version.split(":")[1]);
     } else if (packageName.startsWith("git@github.com:")) {
-      // git SSH URL as package name
       return await getDescriptionFromGithubByFullName(version.split(":")[1]);
     } else {
-      // regular npm package — resolve github repo via npm registry
       return await getRepoFullNameByPackageName(packageName);
     }
   } catch (e) {
@@ -106,7 +65,7 @@ const resolvePackage = async (packageName: string, version: string): Promise<IDe
   }
 };
 
-export const getRepoFullNameByPackageName = async (packageName: string): Promise<IDependency | null> => {
+const getRepoFullNameByPackageName = async (packageName: string): Promise<IDependency | null> => {
   try {
     const data = await fetchJSON(`https://cdn.jsdelivr.net/npm/${packageName}/package.json`);
 
@@ -132,9 +91,10 @@ export const getRepoFullNameByPackageName = async (packageName: string): Promise
 };
 
 const transformUrlToRepoFullName = (url: string) => {
-  let nameWithoutProtocol = '';
-  if (url.includes("ssh://")) {
-    nameWithoutProtocol = "";
+  let nameWithoutProtocol = "";
+
+  if (url.includes("ssh://") || (url.startsWith("git@") && !url.startsWith("git@github.com:"))) {
+    return "";
   } else if (url.startsWith("git@github.com:")) {
     nameWithoutProtocol = url.replace("git@github.com:", "");
   } else if (url.startsWith("git://github.com/")) {
@@ -151,13 +111,8 @@ const transformUrlToRepoFullName = (url: string) => {
   return nameWithoutProtocol.replace(".git", "");
 };
 
-
 const getDescriptionFromGithubByFullName = async (fullName: string): Promise<IDependency> => {
-
-  if (!fullName) return ({
-    name: fullName,
-    description: ""
-  });
+  if (!fullName) return { repo: fullName, description: "" };
 
   try {
     const data = await fetchJSON(`https://cdn.jsdelivr.net/gh/${fullName}@latest/package.json`);
