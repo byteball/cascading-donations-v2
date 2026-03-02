@@ -74,7 +74,12 @@ ${truncatedReadme}`;
       });
 
       if (!res.ok) {
-        console.error(`openrouter: HTTP ${res.status} for ${model}: ${await res.text()}`);
+        const body = await res.text();
+        if (res.status === 404) {
+          console.warn(`openrouter: MODEL NOT FOUND — "${model}" may have been removed from OpenRouter. Please update the MODELS list.`);
+        } else {
+          console.error(`openrouter: HTTP ${res.status} for ${model}: ${body}`);
+        }
         continue;
       }
 
