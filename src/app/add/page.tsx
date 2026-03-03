@@ -16,6 +16,7 @@ import { getAvatarUrl } from "@/utils";
 import appConfig from "@/appConfig";
 import { DistributionRules } from "@/modals/ManageModal/forms/DistributionRules";
 import { DonationButton } from "@/modals/ManageModal/forms/DonationButton";
+import { dataFetcher } from "@/utils/fetcher";
 
 interface IRepositoryData {
 	full_name: string;
@@ -32,9 +33,7 @@ interface IRepositoriesState {
 	loaded: boolean;
 }
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json()).then((res) => res.data);
-
-export default () => {
+export default function AddPage() {
 	let status = '';
 	const walletAddress = useSelector(selectWalletAddress);
 	const githubAccounts = useSelector(selectWalletGithubAccounts);
@@ -49,7 +48,7 @@ export default () => {
 	const { data: githubSession } = useSession();
 
 	const { data, error, isLoading } = useSWR(currentAccount && walletAddress ? `/napi/settings/${currentAccount}` : null,
-		fetcher,
+		dataFetcher,
 		{
 			refreshInterval: 1000 * 60 * 25, // refresh every 25 minutes
 			revalidateOnReconnect: true,
