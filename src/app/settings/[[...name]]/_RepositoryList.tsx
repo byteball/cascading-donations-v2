@@ -17,6 +17,8 @@ import { selectWalletAddress, selectWalletGithubAccounts, selectWalletGithubAcco
 import appConfig from "@/appConfig";
 import { getTokens } from "@/store/slices/tokensSlice";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
+import { dataFetcher } from "@/utils/fetcher";
+
 interface IRepositoryData {
   full_name: string;
   description: string | null;
@@ -34,7 +36,6 @@ interface IRepositoriesState {
 }
 
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json()).then((res) => res.data);
 interface IRepositoryListProps {
   repo?: string;
   owner?: string;
@@ -58,7 +59,7 @@ export const RepositoryList: FC<IRepositoryListProps> = ({ repo, owner }) => {
   const [currentAccount, setCurrentAccount] = useState<string | null>();
   const [repositories, setRepositories] = useState<IRepositoriesState>({ data: [], loading: true, loaded: false });
   const { data, error, isLoading } = useSWR(currentAccount && walletAddress ? `/napi/settings/${currentAccount}` : null,
-    fetcher,
+    dataFetcher,
     {
       refreshInterval: 1000 * 60 * 25, // refresh every 25 minutes
       revalidateOnReconnect: true,

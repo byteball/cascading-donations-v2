@@ -9,6 +9,7 @@ import { Button, Modal, Spin } from "@/components"
 import { toLocalString } from "@/utils";
 
 import appConfig from "@/appConfig";
+import { fetcher } from "@/utils/fetcher";
 
 interface DonationsListModalProps {
   donor: string;
@@ -39,8 +40,6 @@ const initData = {
     current_page: 0,
   }
 };
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json()).then((res) => res);
 
 export const DonationsListModal: FC<DonationsListModalProps> = ({ donor, className = "" }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);

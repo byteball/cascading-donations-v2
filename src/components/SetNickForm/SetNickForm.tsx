@@ -11,12 +11,11 @@ import { ArrowLeftIcon } from "@heroicons/react/20/solid";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import useSWR from "swr";
+import { dataFetcher } from "@/utils/fetcher";
 
 interface INicks {
   [key: string]: string;
 }
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json()).then((res) => res.data);
 
 export const SetNickForm = () => {
   const walletAddress = useSelector(selectWalletAddress);
@@ -25,7 +24,7 @@ export const SetNickForm = () => {
   const buttonRef = useRef(null);
 
   const { data, isLoading } = useSWR<INicks>('/napi/nicks',
-    fetcher,
+    dataFetcher,
     {
       refreshInterval: 1000 * 60 * 20, // refresh every 60 minutes
       revalidateOnReconnect: true,

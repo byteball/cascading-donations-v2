@@ -1,14 +1,13 @@
 "use client";
 
 import useSWR from 'swr';
-import { ArrowTopRightOnSquareIcon } from "@heroicons/react/20/solid";
+import Link from 'next/link';
 
 import { Spin } from "@/components";
 import appConfig from "@/appConfig";
 import { toLocalString } from "@/utils";
 import { DonationsListModal } from "@/modals/DonationsListModal";
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json()).then((res) => res.data);
+import { dataFetcher } from "@/utils/fetcher";
 
 const BACKEND_ROUTE_URL = `${appConfig.BACKEND_API_URL}/total_donated`;
 
@@ -23,7 +22,7 @@ interface INicks {
 
 export const ListOfDonors = () => {
   const { data, error, isLoading } = useSWR<IDonor[]>(BACKEND_ROUTE_URL,
-    fetcher,
+    dataFetcher,
     {
       refreshInterval: 1000 * 60 * 60, // refresh every 60 minutes
       revalidateOnReconnect: true,
@@ -32,7 +31,7 @@ export const ListOfDonors = () => {
     });
 
   const { data: nicks, error: nicksError, isLoading: nicksIsLoading } = useSWR<INicks>('/napi/nicks',
-    fetcher,
+    dataFetcher,
     {
       refreshInterval: 1000 * 60 * 60, // refresh every 60 minutes
       revalidateOnReconnect: true,
@@ -63,7 +62,7 @@ export const ListOfDonors = () => {
             {data.map(({ donor, usd_amount }) => (
               <tr key={donor}>
                 <td className="relative py-4 pr-3 text-sm font-medium text-gray-900">
-                  <a target="_blank" className="font-medium text-gray-950 hover:opacity-60" rel="noopener" href={`https://${appConfig.ENVIRONMENT === 'testnet' ? "testnet" : ""}explorer.obyte.org/#${donor}`}><span className="inline-block truncate max-w-[150px] md:max-w-full">{donor in nicks ? nicks[donor] : donor}</span> <ArrowTopRightOnSquareIcon className="h-[1.4em] mt-[-0.9em] hover:opacity-100 inline-block" /> </a>
+                  <Link href={`/donor/${donor}`} className="font-medium text-gray-950 hover:opacity-60"><span className="inline-block truncate max-w-[150px] md:max-w-full">{donor in nicks ? nicks[donor] : donor}</span></Link>
                   <DonationsListModal donor={donor} className="md:hidden" />
                   <div className="absolute bottom-0 right-full h-px w-screen bg-gray-100" />
                   <div className="absolute bottom-0 left-0 h-px w-screen bg-gray-100" />
