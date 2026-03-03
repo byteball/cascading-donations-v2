@@ -30,7 +30,7 @@ export const ListOfDonors = () => {
       fallbackData: []
     });
 
-  const { data: nicks, error: nicksError, isLoading: nicksIsLoading } = useSWR<INicks>('/napi/nicks',
+  const { data: nicks = {}, error: nicksError, isLoading: nicksIsLoading } = useSWR<INicks>('/napi/nicks',
     dataFetcher,
     {
       refreshInterval: 1000 * 60 * 60, // refresh every 60 minutes
@@ -62,7 +62,7 @@ export const ListOfDonors = () => {
             {data.map(({ donor, usd_amount }) => (
               <tr key={donor}>
                 <td className="relative py-4 pr-3 text-sm font-medium text-gray-900">
-                  <Link href={`/donor/${donor}`} className="font-medium text-gray-950 hover:opacity-60"><span className="inline-block truncate max-w-[150px] md:max-w-full">{donor in nicks ? nicks[donor] : donor}</span></Link>
+                  <Link href={`/donor/${donor}`} className="font-medium text-primary hover:opacity-60"><span className="inline-block truncate max-w-[150px] md:max-w-full">{donor in nicks ? nicks[donor] : donor}</span></Link>
                   <DonationsListModal donor={donor} className="md:hidden" />
                   <div className="absolute bottom-0 right-full h-px w-screen bg-gray-100" />
                   <div className="absolute bottom-0 left-0 h-px w-screen bg-gray-100" />
