@@ -82,7 +82,7 @@ export const DonorProfile: FC<DonorProfileProps> = ({ address }) => {
   return (
     <div>
       <div className="mb-2">
-        <a href={explorerUrl} target="_blank" rel="noopener" className="text-xl font-semibold hover:opacity-60">
+        <a href={explorerUrl} target="_blank" rel="noopener" className="text-xl text-primary font-semibold hover:opacity-60">
           {nick || address}
         </a>
       </div>
@@ -92,7 +92,7 @@ export const DonorProfile: FC<DonorProfileProps> = ({ address }) => {
       )}
 
       <div className="text-lg font-medium mb-6">
-        Total donated: <span className="text-primary">${toLocalString(totalUsd.toFixed(2))}</span>
+        Total donated: <span >${toLocalString(totalUsd.toFixed(2))}</span>
       </div>
 
       {donations.length === 0 ? (
@@ -119,7 +119,7 @@ export const DonorProfile: FC<DonorProfileProps> = ({ address }) => {
                 return (
                   <tr key={fullName}>
                     <td className="relative py-4 pr-3 text-sm font-medium text-gray-900">
-                      <Link href={`/repo/${fullName}`} className="hover:opacity-60">
+                      <Link href={`/repo/${fullName}`} className="hover:opacity-60 text-primary">
                         {fullName}
                       </Link>
                       <div className="absolute bottom-0 right-full h-px w-screen bg-gray-100" />
