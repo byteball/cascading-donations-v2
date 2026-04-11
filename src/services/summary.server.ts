@@ -5,7 +5,8 @@ import { Octokit } from "@octokit/rest";
 import { getCachedSummary, setCachedSummary } from "@/db/summaryCache";
 import { getMetaInformation } from "@/services/github.server";
 import { generateSummary } from "@/services/openrouter.server";
-import { getActiveToken } from "@/utils/getActiveToken";
+import { getActiveTokenOrWait } from "@/utils/getActiveToken";
+import { getRequestQueue, withRetry } from "@/lib/requestQueue";
 
 export async function getRepositorySummary(
   fullName: string
@@ -22,12 +23,15 @@ export async function getRepositorySummary(
 
     const meta = await getMetaInformation(fullName);
 
-    const token = await getActiveToken("request");
-    const octokit = new Octokit({ auth: token });
+    const queue = getRequestQueue();
 
     let readmeContent: string;
     try {
-      const { data } = await octokit.rest.repos.getReadme({ owner, repo });
+      const data = await queue.enqueue(withRetry(async () => {
+        const token = await getActiveTokenOrWait("request");
+        const octokit = new Octokit({ auth: token });
+        return (await octokit.rest.repos.getReadme({ owner, repo })).data;
+      }));
       readmeContent = Buffer.from(data.content, "base64").toString("utf-8");
     } catch {
       console.log("ai-summary: no README found for", fullName);
