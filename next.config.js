@@ -14,6 +14,14 @@ module.exports = async (phase, { defaultConfig }) => {
     typescript: {
       ignoreBuildErrors: true,
     },
+    webpack: (config, { webpack }) => {
+      config.plugins.push(
+        new webpack.IgnorePlugin({
+          resourceRegExp: /\.less$/,
+        })
+      );
+      return config;
+    },
     headers: () => {
       return [
         {
