@@ -32,7 +32,7 @@ export const getPackageDependencies = async (fullName: string): Promise<IDepende
     const deps: Record<string, string> = { ...(data.dependencies || {}), ...(data.devDependencies || {}) };
     const entries = Object.entries(deps).slice(0, 50);
 
-    console.error(`getPackageDependencies: found ${entries.length} dependencies for ${fullName}`);
+    console.log(`getPackageDependencies: found ${entries.length} dependencies for ${fullName}`);
 
     const results = await Promise.all(
       entries.map(([packageName, version]) => resolvePackage(packageName, version))
@@ -40,7 +40,7 @@ export const getPackageDependencies = async (fullName: string): Promise<IDepende
 
     const filtered = results.filter((dep): dep is IDependency => dep !== null);
 
-    console.error(`getPackageDependencies: resolved ${filtered.length}/${entries.length} dependencies for ${fullName}`);
+    console.log(`getPackageDependencies: resolved ${filtered.length}/${entries.length} dependencies for ${fullName}`);
 
     if (filtered.length > 0) {
       // truncate descriptions to save space in SQLite cache
@@ -100,7 +100,7 @@ const getRepoFullNameByPackageName = async (packageName: string): Promise<IDepen
 
     return { repo: name, description: data.description || "" };
   } catch (e) {
-    console.error(`getRepoFullNameByPackageName: error for "${packageName}"`, e);
+    console.error(`getRepoFullNameByPackageName: error for "${packageName}"`);
     return null;
   }
 };

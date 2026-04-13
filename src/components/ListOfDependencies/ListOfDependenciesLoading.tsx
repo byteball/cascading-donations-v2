@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { Spin, Title } from "..";
 
-export const ListOfDependenciesLoading: FC = async () => (
+export const ListOfDependenciesLoading: FC = () => (
   <div>
     <div className='mt-24'>
       <Title level={2}>Support the dependencies</Title>
