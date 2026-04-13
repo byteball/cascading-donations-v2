@@ -2,111 +2,117 @@
 
 import { Octokit } from "@octokit/rest";
 
-import { getRepositoryContributorsCache } from "@/cache/repositoryContributors";
-import { RepositoryMeta, getRepositoryMetaCache } from "@/cache/repositoryMeta"
-import { getRepositoryBannerExistsCache } from "@/cache/bannerExists";
+import { getCachedMeta, setCachedMeta, RepositoryMeta, getCachedContributors, setCachedContributors, getCachedBannerExists, setCachedBannerExists, getCachedDependents, setCachedDependents } from "@/db/githubCache";
 import { generateBannerCode } from "@/utils";
-import { getActiveTokenOrWait } from "@/utils/getActiveToken";
+import { getActiveToken } from "@/utils/getActiveToken";
 import { getRequestQueue, withRetry } from "@/lib/requestQueue";
 
-const META_DATA_EXPIRATION = 1000 * 60 * 60 * 24; // 1 day
 
+export type { RepositoryMeta } from "@/db/githubCache";
 
 export const getMetaInformation = async (fullName: string): Promise<RepositoryMeta | null> => {
-  const cache = getRepositoryMetaCache();
-  const cacheData = cache.get(fullName);
   const [owner, repo] = fullName.split("/");
 
   if (!owner || !repo) {
     return null;
   }
 
-  if (cacheData && (cacheData.last_update + META_DATA_EXPIRATION >= Date.now())) {
-    console.log('meta: we use cache')
-    return cacheData;
-  } else {
-    const queue = getRequestQueue();
+  const cached = getCachedMeta(fullName);
+  if (cached) {
+    console.log('meta: we use cache');
+    return cached;
+  }
 
-    try {
-      const data = await queue.enqueue(withRetry(async () => {
-        const token = await getActiveTokenOrWait('request');
-        const githubRestClient = new Octokit({ auth: token });
-        return (await githubRestClient.rest.repos.get({ owner, repo })).data;
-      }));
+  const token = await getActiveToken('request');
+  if (!token) {
+    console.warn(`meta: no token available for ${fullName}, skipping API call`);
+    return null;
+  }
 
-      console.log('meta: we use api');
+  const queue = getRequestQueue();
 
-      const newRepoMetaData: RepositoryMeta = {
-        name: repo,
-        owner,
-        last_update: Date.now(),
-        description: data.description,
-        language: data.language,
-        stargazers_count: data.stargazers_count,
-        forks_count: data.forks_count,
-        license: data.license?.name || null,
-        created_at: data.created_at,
-        pushed_at: data.updated_at
-      }
+  try {
+    const data = await queue.enqueue(withRetry(async () => {
+      const githubRestClient = new Octokit({ auth: token });
+      return (await githubRestClient.rest.repos.get({ owner, repo })).data;
+    }));
 
-      cache.set(fullName, newRepoMetaData);
+    console.log('meta: we use api');
 
-      return newRepoMetaData;
-    } catch (error: any) {
-      if (error?.status === 404) {
-        return null;
-      }
-      console.error(`github: queue request failed for ${fullName}:`, error?.message || error);
-      throw error;
+    const newRepoMetaData: RepositoryMeta = {
+      name: repo,
+      owner,
+      last_update: Date.now(),
+      description: data.description?.slice(0, 500) || null,
+      language: data.language,
+      stargazers_count: data.stargazers_count,
+      forks_count: data.forks_count,
+      license: data.license?.name || null,
+      created_at: data.created_at,
+      pushed_at: data.updated_at
     }
 
+    setCachedMeta(fullName, newRepoMetaData);
+
+    return newRepoMetaData;
+  } catch (error: any) {
+    if (error?.status === 404) {
+      return null;
+    }
+    console.error(`github: queue request failed for ${fullName}:`, error?.message || error);
+    throw error;
   }
 }
 
 export const getContributors = async (fullName: string) => {
-  const cache = getRepositoryContributorsCache();
-  const cacheData = cache.get(fullName);
   const [owner, repo] = fullName.split("/");
 
   if (!owner || !repo) {
     throw new Error("Invalid repository name");
   }
 
-  if (cacheData && (cacheData.updated_at + META_DATA_EXPIRATION >= Date.now())) {
-    console.log('contributors: we use cache')
-    return cacheData.data;
-  } else {
-    const queue = getRequestQueue();
+  const cached = getCachedContributors(fullName);
+  if (cached) {
+    console.log('contributors: we use cache');
+    return cached;
+  }
 
-    try {
-      const data = await queue.enqueue(withRetry(async () => {
-        const token = await getActiveTokenOrWait('request');
-        const githubRestClient = new Octokit({ auth: token });
-        return (await githubRestClient.rest.repos.listContributors({ owner, repo, per_page: 10 })).data;
-      }));
-      console.log('contributors: we use api');
-      const newContributorsData = data.filter(d => d.login).map(({ login, contributions }) => ({ login: login || "Unknown", contributions }));
+  const token = await getActiveToken('request');
+  if (!token) {
+    console.warn(`contributors: no token available for ${fullName}, skipping API call`);
+    return [];
+  }
 
-      cache.set(fullName, {
-        data: newContributorsData,
-        updated_at: Date.now()
-      });
+  const queue = getRequestQueue();
 
-      return newContributorsData;
+  try {
+    const data = await queue.enqueue(withRetry(async () => {
+      const githubRestClient = new Octokit({ auth: token });
+      return (await githubRestClient.rest.repos.listContributors({ owner, repo, per_page: 10 })).data;
+    }));
+    console.log('contributors: we use api');
+    const newContributorsData = data.filter(d => d.login).map(({ login, contributions }) => ({ login: login || "Unknown", contributions }));
 
-    } catch {
-      // throw new Error("Error: Repository not found");
-      return [];
-    }
+    setCachedContributors(fullName, newContributorsData);
+
+    return newContributorsData;
+
+  } catch (err: any) {
+    console.error(`contributors: request failed for ${fullName}:`, err?.message || err);
+    return [];
   }
 }
-
-const DEPENDENTS_REVALIDATE_TS = 60 * 60 * 24 * 7 * 4 * 3; // 3 months
 
 let lastGitHubFetchTs = 0;
 const MIN_FETCH_INTERVAL = 1000; // 1 second between requests
 
 export async function getDependentsFromGitHub(fullName: string): Promise<{ name: string; description: string }[]> {
+  const cached = getCachedDependents(fullName);
+  if (cached) {
+    console.log(`dependents: cache hit for ${fullName}`);
+    return cached;
+  }
+
   const now = Date.now();
   const timeSinceLastFetch = now - lastGitHubFetchTs;
 
@@ -118,7 +124,7 @@ export async function getDependentsFromGitHub(fullName: string): Promise<{ name:
 
   const res = await fetch(
     `https://github.com/${fullName}/network/dependents`,
-    { next: { revalidate: DEPENDENTS_REVALIDATE_TS } }
+    { cache: 'no-store' }
   );
 
   if (!res.ok) {
@@ -148,7 +154,12 @@ export async function getDependentsFromGitHub(fullName: string): Promise<{ name:
     results.push({ name: `${owner}/${repo}`, description: "" });
   }
 
-  console.error(`getDependentsFromGitHub: found ${results.length} dependents for ${fullName}`);
+  console.log(`getDependentsFromGitHub: found ${results.length} dependents for ${fullName}`);
+
+  if (results.length > 0) {
+    setCachedDependents(fullName, results);
+  }
+
   return results;
 }
 
@@ -167,42 +178,43 @@ export const getListOfDependentPackages = async (fullName: string) => {
 export const checkBannerExists = async (fullNameProp: string): Promise<boolean> => {
   const fullName = fullNameProp.toLowerCase();
 
-  const bannersCache = getRepositoryBannerExistsCache();
-  const cacheData = bannersCache.get(fullName);
-
   const [owner, repo] = fullName.split("/");
 
   if (!owner || !repo) return false;
 
-  const cacheIsExpired = cacheData ? (Date.now() - cacheData.ts) > (cacheData.exists ? 1000 * 60 * 60 * 24 * 7 : 1000 * 60 * 60 * 12) : true;
+  const cached = getCachedBannerExists(fullName);
+  if (cached !== null) {
+    console.log('verification: use cache');
+    return cached;
+  }
 
-  if (cacheData && !cacheIsExpired) {
-    console.log('verification: use cache')
-    return cacheData.exists;
-  } else {
-    const queue = getRequestQueue();
+  const token = await getActiveToken('request');
+  if (!token) {
+    console.warn(`verification: no token available for ${fullName}, skipping API call`);
+    return false;
+  }
 
-    try {
-      const content = await queue.enqueue(withRetry(async () => {
-        const token = await getActiveTokenOrWait('request');
-        const githubRestClient = new Octokit({ auth: token });
-        return (await githubRestClient.rest.repos.getReadme({ owner, repo })).data;
-      }));
+  const queue = getRequestQueue();
 
-      if (content.content) {
-        const bannerCode = generateBannerCode(fullName);
-        const readme = atob(content.content);
-        const exists = readme?.includes(bannerCode) || false;
-        console.log('verification: use api')
+  try {
+    const content = await queue.enqueue(withRetry(async () => {
+      const githubRestClient = new Octokit({ auth: token });
+      return (await githubRestClient.rest.repos.getReadme({ owner, repo })).data;
+    }));
 
-        bannersCache.set(fullName, { ts: Date.now(), exists });
+    if (content.content) {
+      const bannerCode = generateBannerCode(fullName);
+      const readme = atob(content.content);
+      const exists = readme?.includes(bannerCode) || false;
+      console.log('verification: use api');
 
-        return exists;
-      }
-    } catch (e) {
-      bannersCache.set(fullName, { ts: Date.now(), exists: false });
-      return false;
+      setCachedBannerExists(fullName, exists);
+
+      return exists;
     }
+  } catch (e) {
+    setCachedBannerExists(fullName, false);
+    return false;
   }
 
   return false;

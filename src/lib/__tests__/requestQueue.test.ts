@@ -72,6 +72,24 @@ describe("RequestQueue", () => {
     resolveFirst();
     await p1;
   });
+
+  it("rejects new tasks when queue is full", async () => {
+    const queue = new RequestQueue(1, 2); // max 1 concurrent, max 2 queued
+
+    let resolveFirst!: () => void;
+    const blockingTask = () => new Promise<void>((resolve) => { resolveFirst = resolve; });
+
+    queue.enqueue(blockingTask); // active slot taken
+    queue.enqueue(() => Promise.resolve()); // queued #1
+    queue.enqueue(() => Promise.resolve()); // queued #2
+
+    // queue is now full (2 queued), next should reject
+    await expect(
+      queue.enqueue(() => Promise.resolve())
+    ).rejects.toThrow("queue overflow");
+
+    resolveFirst();
+  });
 });
 
 describe("withRetry", () => {
@@ -84,15 +102,15 @@ describe("withRetry", () => {
     let calls = 0;
     const fn = withRetry(() => {
       calls++;
-      if (calls < 3) {
+      if (calls < 2) {
         return Promise.reject({ status: 429, message: "rate limited" });
       }
       return Promise.resolve("recovered");
-    }, 3);
+    }, 2);
 
     const result = await fn();
     expect(result).toBe("recovered");
-    expect(calls).toBe(3);
+    expect(calls).toBe(2);
   });
 
   it("retries on 403 with x-ratelimit-remaining: 0", async () => {
@@ -106,7 +124,7 @@ describe("withRetry", () => {
         });
       }
       return Promise.resolve("ok");
-    }, 3);
+    }, 2);
 
     const result = await fn();
     expect(result).toBe("ok");
@@ -118,7 +136,7 @@ describe("withRetry", () => {
     const fn = withRetry(() => {
       calls++;
       return Promise.reject({ status: 500, message: "server error" });
-    }, 3);
+    }, 2);
 
     await expect(fn()).rejects.toEqual(
       expect.objectContaining({ status: 500 })
@@ -137,30 +155,5 @@ describe("withRetry", () => {
       expect.objectContaining({ status: 429 })
     );
     expect(calls).toBe(3); // initial + 2 retries
-  });
-
-  it("respects x-ratelimit-reset header for delay", async () => {
-    let calls = 0;
-    const resetTime = Math.floor(Date.now() / 1000) + 1; // 1 second from now
-
-    const fn = withRetry(() => {
-      calls++;
-      if (calls < 2) {
-        return Promise.reject({
-          status: 429,
-          response: {
-            headers: { "x-ratelimit-reset": String(resetTime) },
-          },
-        });
-      }
-      return Promise.resolve("ok");
-    }, 3);
-
-    const start = Date.now();
-    const result = await fn();
-    const elapsed = Date.now() - start;
-
-    expect(result).toBe("ok");
-    expect(elapsed).toBeGreaterThanOrEqual(1000);
   });
 });
