@@ -1,12 +1,12 @@
+import { getCachedNpmDeps, setCachedNpmDeps } from "@/db/githubCache";
+
 interface IDependency {
   repo?: string;
   description?: string;
 }
 
-const CACHE_REVALIDATE_TS = 60 * 60 * 24 * 7 * 4 * 3; // 3 months
-
 const fetchJSON = async (url: string) => {
-  const response = await fetch(url, { next: { revalidate: CACHE_REVALIDATE_TS } });
+  const response = await fetch(url, { cache: 'no-store' });
 
   if (!response.ok) {
     throw new Error(`fetch ${url} failed with status ${response.status}`);
@@ -19,6 +19,12 @@ export const getPackageDependencies = async (fullName: string): Promise<IDepende
   if (!fullName) {
     console.error("getPackageDependencies: invalid repo name");
     return [];
+  }
+
+  const cached = getCachedNpmDeps(fullName);
+  if (cached) {
+    console.log(`getPackageDependencies: cache hit for ${fullName}`);
+    return cached;
   }
 
   try {
@@ -35,6 +41,15 @@ export const getPackageDependencies = async (fullName: string): Promise<IDepende
     const filtered = results.filter((dep): dep is IDependency => dep !== null);
 
     console.error(`getPackageDependencies: resolved ${filtered.length}/${entries.length} dependencies for ${fullName}`);
+
+    if (filtered.length > 0) {
+      // truncate descriptions to save space in SQLite cache
+      const trimmed = filtered.map(dep => ({
+        repo: dep.repo,
+        description: dep.description?.slice(0, 200) || ""
+      }));
+      setCachedNpmDeps(fullName, trimmed);
+    }
 
     return filtered;
   } catch (e) {

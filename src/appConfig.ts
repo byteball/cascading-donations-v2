@@ -13,7 +13,7 @@ export default {
   ATTESTOR_AA: process.env.NEXT_PUBLIC_ATTESTOR_AA,
   ATTESTOR: process.env.NEXT_PUBLIC_ATTESTOR,
   ATTESTOR_PAIRING_URL: process.env.NEXT_PUBLIC_ATTESTOR_PAIRING_URL,
-  REQUEST_RATE_LIMIT: 999,
+  REQUEST_RATE_LIMIT: 4500,
   SEARCH_RATE_LIMIT: 29,
   INTRODUCTORY_ARTICLE_URL: "https://blog.obyte.org/kivach-cascading-donations-for-github-repositories-2b175bdbff77",
   STATUS_BOT_PAIRING_URL: process.env.NEXT_PUBLIC_STATUS_BOT_PAIRING_URL,

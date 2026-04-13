@@ -1,11 +1,6 @@
 import appConfig from "@/appConfig";
 import { getTokens, setTokens } from "@/cache/rateLimit";
 
-const RESET_INTERVALS = {
-  request: 1000 * 60 * 60, // 1 hour
-  search: 1000 * 60,       // 1 minute
-};
-
 export async function getActiveToken(type: 'search' | 'request') {
   const tokens = getTokens();
   const now = Date.now();
@@ -37,38 +32,10 @@ export async function getActiveToken(type: 'search' | 'request') {
   });
 
   if (activeToken === undefined) {
-    console.error('No active token found');
+    console.error('getActiveToken: all tokens exhausted, returning undefined');
   }
 
   setTokens(tokens);
 
   return activeToken?.token;
-}
-
-export async function getActiveTokenOrWait(type: 'search' | 'request'): Promise<string> {
-  const MAX_WAIT_ATTEMPTS = 10;
-
-  for (let attempt = 0; attempt < MAX_WAIT_ATTEMPTS; attempt++) {
-    const token = await getActiveToken(type);
-    if (token) return token;
-
-    // find the earliest token reset time
-    const tokens = getTokens();
-    const resetInterval = RESET_INTERVALS[type];
-    const resetField = type === 'search' ? 'search_limit_last_reset' : 'limit_last_reset';
-
-    let earliestReset = Infinity;
-    for (const t of tokens) {
-      const resetAt = t[resetField] + resetInterval;
-      if (resetAt < earliestReset) {
-        earliestReset = resetAt;
-      }
-    }
-
-    const waitMs = Math.max(earliestReset - Date.now(), 1000);
-    console.log(`getActiveTokenOrWait: all ${type} tokens exhausted, waiting ${Math.round(waitMs / 1000)}s for reset`);
-    await new Promise((resolve) => setTimeout(resolve, waitMs + 500)); // +500ms buffer
-  }
-
-  throw new Error(`getActiveTokenOrWait: could not get a ${type} token after ${MAX_WAIT_ATTEMPTS} attempts`);
 }

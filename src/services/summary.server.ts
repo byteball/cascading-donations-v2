@@ -5,7 +5,7 @@ import { Octokit } from "@octokit/rest";
 import { getCachedSummary, setCachedSummary } from "@/db/summaryCache";
 import { getMetaInformation } from "@/services/github.server";
 import { generateSummary } from "@/services/openrouter.server";
-import { getActiveTokenOrWait } from "@/utils/getActiveToken";
+import { getActiveToken } from "@/utils/getActiveToken";
 import { getRequestQueue, withRetry } from "@/lib/requestQueue";
 
 export async function getRepositorySummary(
@@ -23,12 +23,17 @@ export async function getRepositorySummary(
 
     const meta = await getMetaInformation(fullName);
 
+    const token = await getActiveToken("request");
+    if (!token) {
+      console.warn("ai-summary: no token available for", fullName);
+      return null;
+    }
+
     const queue = getRequestQueue();
 
     let readmeContent: string;
     try {
       const data = await queue.enqueue(withRetry(async () => {
-        const token = await getActiveTokenOrWait("request");
         const octokit = new Octokit({ auth: token });
         return (await octokit.rest.repos.getReadme({ owner, repo })).data;
       }));
