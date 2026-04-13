@@ -1,10 +1,10 @@
 import { FC } from "react";
-import { notFound } from 'next/navigation';
 
 import { Title } from "@/components";
 import { ForkIcon } from "@/components/Icons";
 import { DonateModal } from "@/modals/DonateModal";
-import { checkBannerExists, getMetaInformation } from "@/services/github.server";
+import { checkBannerExists } from "@/services/github.server";
+import { RepositoryMeta } from "@/db/githubCache";
 import { getAvatarUrl, truncate } from "@/utils";
 
 import { SettingsButton } from "./SettingsButton";
@@ -15,14 +15,11 @@ import appConfig from "@/appConfig";
 interface IMetaProps {
   owner: string;
   repo: string;
+  metaData: RepositoryMeta;
 }
 
-export const Meta: FC<IMetaProps> = async ({ owner, repo }) => {
-  let metaData;
+export const Meta: FC<IMetaProps> = async ({ owner, repo, metaData }) => {
   const bannerExists = await checkBannerExists(`${owner}/${repo}`);
-
-  metaData = await getMetaInformation(`${owner}/${repo}`);
-  if (!metaData) return notFound();
 
   const disabled = appConfig.DISABLED_REPOS.includes(`${owner}/${repo}`);
 

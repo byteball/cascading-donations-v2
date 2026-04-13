@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { Inter } from 'next/font/google';
 
 import { Footer, Header, WelcomeBanner } from './_layout';
@@ -9,6 +10,7 @@ import { StoreProvider } from '@/store/StoreProvider';
 import { GithubSessionProvider } from './_layout/GithubSessionProvider/GithubSessionProvider';
 import { CookieBanner } from '@/components/CookieBanner/CookieBanner';
 import { WebVitals } from '@/components/WebVitals/WebVitals';
+import { NavigationProgress } from '@/components/NavigationProgress/NavigationProgress';
 import { GoogleAnalytics } from '@/components/GoogleAnalytics/GoogleAnalytics';
 
 import appConfig from '@/appConfig';
@@ -31,6 +33,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <WebVitals />
+        <Suspense fallback={null}>
+          <NavigationProgress />
+        </Suspense>
         <WelcomeBanner />
         <GithubSessionProvider>
           <StoreProvider>

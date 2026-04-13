@@ -1,9 +1,9 @@
 // Opt out of caching for all data requests in the route segment
 export const dynamic = 'force-dynamic';
 
+import { Suspense } from 'react';
 import { notFound, redirect } from 'next/navigation';
 import { Metadata } from 'next';
-import dynamicLoader from 'next/dynamic';
 
 import { RecentEvents, SubTitle, Title } from "@/components"
 
@@ -19,21 +19,9 @@ import { ListOfDependenciesLoading } from '@/components/ListOfDependencies/ListO
 import { ListOfDependentsLoading } from '@/components/list-of-dependents/list-of-dependents-loading';
 import { AISummaryLoading } from '@/components/AISummary/AISummaryLoading';
 import { getMetaInformation } from '@/services/github.server';
-
-const ListOfDependencies = dynamicLoader(() => import("@/components/ListOfDependencies/ListOfDependencies"), {
-  ssr: true,
-  loading: () => <ListOfDependenciesLoading />,
-});
-
-const ListOfDependents = dynamicLoader(() => import("@/components/list-of-dependents/list-of-dependents"), {
-  ssr: true,
-  loading: () => <ListOfDependentsLoading />,
-});
-
-const AISummary = dynamicLoader(() => import("@/components/AISummary/AISummary"), {
-  ssr: true,
-  loading: () => <AISummaryLoading />,
-});
+import ListOfDependencies from '@/components/ListOfDependencies/ListOfDependencies';
+import ListOfDependents from '@/components/list-of-dependents/list-of-dependents';
+import AISummary from '@/components/AISummary/AISummary';
 
 type RepoPageProps = {
   params: { repo: string, owner: string }
@@ -65,23 +53,44 @@ export async function generateMetadata(
   }
 }
 
+function ContributionsSkeleton() {
+  return (
+    <div className="max-w-5xl mt-8 animate-pulse">
+      <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="flex space-x-4">
+            <div className="w-12 h-12 rounded-full bg-gray-200 flex-shrink-0" />
+            <div className="space-y-2">
+              <div className="h-5 w-24 bg-gray-200 rounded" />
+              <div className="h-4 w-32 bg-gray-200 rounded" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default async function Page({ params }: RepoPageProps) {
 
   const { repo, owner } = params;
 
   if (!repo || !owner) return redirect("/");
 
-  const metaData = await getMetaInformation(`${owner}/${repo}`);
+  const [metaData, { events, pagination }] = await Promise.all([
+    getMetaInformation(`${owner}/${repo}`),
+    getRepoRecentEvents(`${owner}/${repo}`, 1),
+  ]);
 
   if (!metaData) return notFound();
 
-  const { events, pagination } = await getRepoRecentEvents(`${owner}/${repo}`, 1);
-
   return <div className="mt-12">
 
-    <Meta owner={owner} repo={repo} />
+    <Meta owner={owner} repo={repo} metaData={metaData} />
 
-    <AISummary owner={owner} repo={repo} />
+    <Suspense fallback={<AISummaryLoading />}>
+      <AISummary owner={owner} repo={repo} />
+    </Suspense>
 
     <StatisticGrid owner={owner} repo={repo} />
 
@@ -108,23 +117,29 @@ export default async function Page({ params }: RepoPageProps) {
         />
       </div>
 
-      <ListOfDependencies
-        owner={owner}
-        repo={repo}
-      />
+      <Suspense fallback={<ListOfDependenciesLoading />}>
+        <ListOfDependencies
+          owner={owner}
+          repo={repo}
+        />
+      </Suspense>
 
-      <ListOfDependents
-        owner={owner}
-        repo={repo}
-      />
+      <Suspense fallback={<ListOfDependentsLoading />}>
+        <ListOfDependents
+          owner={owner}
+          repo={repo}
+        />
+      </Suspense>
 
       <div className='mt-24'>
         <Title level={2}>Top contributors</Title>
 
-        <Contributions
-          owner={owner}
-          repo={repo}
-        />
+        <Suspense fallback={<ContributionsSkeleton />}>
+          <Contributions
+            owner={owner}
+            repo={repo}
+          />
+        </Suspense>
       </div>
 
       <div className='mt-24'>
